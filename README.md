@@ -1,333 +1,144 @@
-# FC 26 Pro Clubs Stats Hub Backend
+# Pro Clubs Stats Hub
 
-A comprehensive backend API for managing FC 26 Pro Clubs league statistics, built with Node.js, Express, and PostgreSQL.
+A comprehensive statistics and management system for FC 26 Pro Clubs leagues, featuring a Node.js backend API and React frontend.
 
-## 🚀 Features
+## 🏗️ Project Structure
 
-- **User Management**: Registration, authentication, and role-based access control
-- **Team Management**: Create, update, and manage teams with player assignments
-- **Player Statistics**: Track individual and team performance metrics
-- **Match Management**: Record match results and player performance
-- **Season Management**: Organize competitions into seasons
-- **Advanced Analytics**: Leaderboards, comparisons, and statistical insights
-- **RESTful API**: Clean, well-documented endpoints
-- **Security**: JWT authentication, role-based permissions, input validation
-
-## 🛠️ Technology Stack
-
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js
-- **Database**: PostgreSQL
-- **ORM**: Prisma
-- **Authentication**: JWT + bcrypt
-- **Validation**: Joi
-- **Security**: Helmet, CORS, Rate Limiting
-
-## 📋 Prerequisites
-
-- Node.js 18+ installed
-- PostgreSQL database
-- npm or yarn package manager
+```
+proclubs-stats-hub/
+├── backend/           # Node.js + Express API
+│   ├── package.json
+│   ├── .env
+│   ├── prisma/        # Database schema and migrations
+│   ├── src/           # Backend source code
+│   └── README.md      # Backend documentation
+├── frontend/          # React application
+│   ├── package.json
+│   ├── src/           # React components
+│   ├── public/        # Static assets
+│   └── README.md      # Frontend documentation
+└── README.md          # This file
+```
 
 ## 🚀 Quick Start
 
-### 1. Clone and Install Dependencies
+### **Prerequisites**
+
+- Node.js 18.0.0 or higher
+- PostgreSQL database (see `backend/DATABASE_SETUP.md`)
+- npm or yarn package manager
+
+### **1. Backend Setup**
 
 ```bash
-git clone <repository-url>
-cd proclubs-stats-hub
+cd backend
 npm install
-```
-
-### 2. Environment Configuration
-
-Copy the environment example file and configure your settings:
-
-```bash
-cp env.example .env
-```
-
-Edit `.env` with your configuration:
-
-```env
-# Database Configuration
-DATABASE_URL="postgresql://username:password@localhost:5432/proclubs_stats"
-
-# Server Configuration
-PORT=3000
-NODE_ENV=development
-
-# JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-here
-JWT_EXPIRES_IN=7d
-
-# Frontend URL for CORS
-FRONTEND_URL=http://localhost:3000
-```
-
-### 3. Database Setup
-
-```bash
-# Generate Prisma client
 npm run db:generate
-
-# Run database migrations
 npm run db:migrate
-
-# (Optional) Seed with sample data
 npm run db:seed
+npm run dev
 ```
 
-### 4. Start the Server
+The backend will run on `http://localhost:3000`
+
+### **2. Frontend Setup**
 
 ```bash
-# Development mode with auto-reload
-npm run dev
-
-# Production mode
+cd frontend
+npm install
 npm start
 ```
 
-The API will be available at `http://localhost:3000`
+The frontend will run on `http://localhost:3001`
 
-## 📊 Database Schema
+## 🔐 Test Credentials
 
-The system uses a relational database with the following main entities:
+**Team Admin:**
 
-- **Users**: Account management and authentication
-- **Players**: Individual player profiles and gamertags
-- **Teams**: Team information and management
-- **Seasons**: Competition periods and organization
-- **Matches**: Game results and scheduling
-- **Player Match Stats**: Individual performance per match
-- **Player Season Stats**: Aggregated season performance
+- Email: `team_admin@proclubs.com`
+- Password: `team123`
 
-## 🔐 Authentication & Authorization
+**League Admin:**
 
-### User Roles
+- Email: `league_admin@proclubs.com`
+- Password: `league123`
 
-- **ADMIN**: Full system access, user management
-- **MANAGER**: Team management, match operations
-- **PLAYER**: View own stats, limited operations
+**Competition Admin:**
 
-### JWT Tokens
+- Email: `competition_admin@proclubs.com`
+- Password: `admin123`
 
-Include the JWT token in the Authorization header:
+## 📚 Documentation
 
-```
-Authorization: Bearer <your-jwt-token>
-```
+- **Backend**: See `backend/README.md` for API documentation
+- **Frontend**: See `frontend/README.md` for UI documentation
+- **Database**: See `backend/DATABASE_SETUP.md` for setup instructions
+- **API Testing**: See `backend/API_TESTING_GUIDE.md` for endpoint testing
 
-## 📡 API Endpoints
+## 🛠️ Development
 
-### Authentication
-
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get current user profile
-- `PUT /api/auth/change-password` - Change password
-
-### Users
-
-- `GET /api/users` - List all users (Admin only)
-- `GET /api/users/:id` - Get user profile
-- `PUT /api/users/:id` - Update user profile
-- `DELETE /api/users/:id` - Delete user (Admin only)
-
-### Teams
-
-- `GET /api/teams` - List all teams
-- `GET /api/teams/:id` - Get team details
-- `POST /api/teams` - Create new team (Manager+)
-- `PUT /api/teams/:id` - Update team (Manager+)
-- `DELETE /api/teams/:id` - Delete team (Manager+)
-- `GET /api/teams/:id/stats` - Get team statistics
-
-### Players
-
-- `GET /api/players` - List all players
-- `GET /api/players/:id` - Get player profile
-- `PUT /api/players/:id` - Update player (Manager+)
-- `POST /api/players/:id/assign-team` - Assign to team (Manager+)
-- `DELETE /api/players/:id/remove-team` - Remove from team (Manager+)
-- `GET /api/players/:id/stats` - Get player statistics
-
-### Matches
-
-- `GET /api/matches` - List all matches
-- `GET /api/matches/:id` - Get match details
-- `POST /api/matches` - Create new match (Manager+)
-- `PUT /api/matches/:id` - Update match (Manager+)
-- `POST /api/matches/:id/stats` - Add player stats (Manager+)
-- `GET /api/matches/:id/stats-summary` - Get match summary
-
-### Statistics
-
-- `GET /api/stats/leaderboard` - Get performance leaderboards
-- `GET /api/stats/team-comparison` - Compare team performance
-- `GET /api/stats/season-summary/:id` - Get season statistics
-- `GET /api/stats/position-stats` - Get position-based statistics
-
-### Seasons
-
-- `GET /api/seasons` - List all seasons
-- `GET /api/seasons/:id` - Get season details
-- `POST /api/seasons` - Create new season (Manager+)
-- `PUT /api/seasons/:id` - Update season (Manager+)
-- `DELETE /api/seasons/:id` - Delete season (Manager+)
-- `GET /api/seasons/current/active` - Get active season
-
-## 🔧 Development
-
-### Available Scripts
+### **Backend Development**
 
 ```bash
-npm run dev          # Start development server with nodemon
-npm start            # Start production server
-npm test             # Run tests
-npm run db:generate  # Generate Prisma client
-npm run db:migrate   # Run database migrations
-npm run db:seed      # Seed database with sample data
+cd backend
+npm run dev          # Start development server
 npm run db:studio    # Open Prisma Studio
+npm test             # Run tests
 ```
 
-### Project Structure
-
-```
-src/
-├── database/
-│   └── prisma.js          # Database connection
-├── middleware/
-│   ├── auth.js            # Authentication middleware
-│   ├── errorHandler.js     # Error handling
-│   └── notFound.js        # 404 handler
-├── routes/
-│   ├── auth.js            # Authentication routes
-│   ├── users.js           # User management
-│   ├── teams.js           # Team management
-│   ├── players.js         # Player management
-│   ├── matches.js         # Match management
-│   ├── stats.js           # Statistics and analytics
-│   └── seasons.js         # Season management
-└── server.js              # Main server file
-```
-
-### Adding New Routes
-
-1. Create a new route file in `src/routes/`
-2. Import and add to `src/server.js`
-3. Follow the existing pattern for validation and error handling
-
-### Database Changes
-
-1. Update the Prisma schema in `prisma/schema.prisma`
-2. Generate a new migration: `npm run db:migrate`
-3. Update the Prisma client: `npm run db:generate`
-
-## 🧪 Testing
+### **Frontend Development**
 
 ```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run specific test file
-npm test -- --testPathPattern=users.test.js
+cd frontend
+npm start            # Start development server
+npm run build        # Build for production
+npm test             # Run tests
 ```
 
-## 🚀 Deployment
+## 🌐 API Endpoints
 
-### Production Considerations
+- **Authentication**: `/api/auth/*`
+- **Teams**: `/api/teams/*`
+- **Players**: `/api/players/*`
+- **Matches**: `/api/matches/*`
+- **Statistics**: `/api/stats/*`
+- **Seasons**: `/api/seasons/*`
 
-1. Set `NODE_ENV=production`
-2. Use a strong `JWT_SECRET`
-3. Configure proper CORS origins
-4. Set up database connection pooling
-5. Use environment variables for sensitive data
-6. Implement proper logging and monitoring
+## 🔧 Configuration
 
-### Docker (Optional)
+### **Backend Environment Variables**
 
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run db:generate
-EXPOSE 3000
-CMD ["npm", "start"]
+Create `backend/.env`:
+
+```env
+DATABASE_URL="postgresql://postgres:password123@localhost:5432/proclubs_stats"
+PORT=3000
+JWT_SECRET=your_jwt_secret_here
 ```
 
-## 📝 API Response Format
+### **Frontend Environment Variables**
 
-All API responses follow a consistent format:
+Create `frontend/.env`:
 
-### Success Response
-
-```json
-{
-  "success": true,
-  "message": "Operation completed successfully",
-  "data": { ... }
-}
+```env
+REACT_APP_API_URL=http://localhost:3000/api
 ```
 
-### Error Response
+## 🚨 Troubleshooting
 
-```json
-{
-	"success": false,
-	"error": {
-		"message": "Error description"
-	},
-	"timestamp": "2024-01-01T00:00:00.000Z"
-}
-```
+### **Common Issues**
 
-### Paginated Response
+1. **Port Conflicts**: Backend uses 3000, Frontend uses 3001
+2. **Database Connection**: Ensure PostgreSQL is running
+3. **CORS Issues**: Backend has CORS configured for frontend
+4. **Authentication**: Check JWT token in browser localStorage
 
-```json
-{
-  "success": true,
-  "data": [...],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "pages": 5
-  }
-}
-```
+### **Getting Help**
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+- Check the individual README files in each directory
+- Review the API testing guide
+- Check browser console and terminal for error messages
 
 ## 📄 License
 
 This project is licensed under the MIT License.
-
-## 🆘 Support
-
-For questions or issues:
-
-- Create an issue in the repository
-- Check the API documentation
-- Review the error logs
-
-## 🔮 Future Enhancements
-
-- Real-time match updates with WebSockets
-- Advanced analytics and machine learning insights
-- Mobile app API endpoints
-- Integration with external gaming platforms
-- Automated statistics calculation
-- Performance optimization and caching

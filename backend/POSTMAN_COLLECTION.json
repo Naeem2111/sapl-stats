@@ -1,0 +1,859 @@
+{
+	"info": {
+		"_postman_id": "fc26-proclubs-stats-hub",
+		"name": "FC 26 Pro Clubs Stats Hub API",
+		"description": "Complete API collection for testing FC 26 Pro Clubs league statistics backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": ["{{base_url}}"],
+					"path": ["health"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "User Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testplayer1\",\n  \"email\": \"player1@test.com\",\n  \"password\": \"password123\",\n  \"gamertag\": \"TestPlayer1\",\n  \"realName\": \"John Doe\",\n  \"position\": \"ST\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"player1@test.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "profile"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newpassword456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/change-password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "change-password"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Teams",
+			"item": [
+				{
+					"name": "List All Teams",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/teams",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Team by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/teams/{{team_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams", "{{team_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Team",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Team Name\",\n  \"logoUrl\": \"https://example.com/logo.png\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/teams",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Team",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Team Name\",\n  \"logoUrl\": \"https://example.com/new-logo.png\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/teams/{{team_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams", "{{team_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Team",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/teams/{{team_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams", "{{team_id}}"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Players",
+			"item": [
+				{
+					"name": "List All Players",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/players?position=ST&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "players"],
+							"query": [
+								{
+									"key": "position",
+									"value": "ST"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Player by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/players/{{player_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "players", "{{player_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Player",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"position\": \"CM\",\n  \"realName\": \"Updated Name\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/players/{{player_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "players", "{{player_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Player to Team",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"teamId\": \"{{team_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/players/{{player_id}}/assign-team",
+							"host": ["{{base_url}}"],
+							"path": ["api", "players", "{{player_id}}", "assign-team"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Matches",
+			"item": [
+				{
+					"name": "List All Matches",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/matches?seasonId={{season_id}}&status=COMPLETED",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches"],
+							"query": [
+								{
+									"key": "seasonId",
+									"value": "{{season_id}}"
+								},
+								{
+									"key": "status",
+									"value": "COMPLETED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Match by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/matches/{{match_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", "{{match_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Match",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"homeTeamId\": \"{{home_team_id}}\",\n  \"awayTeamId\": \"{{away_team_id}}\",\n  \"seasonId\": \"{{season_id}}\",\n  \"competitionType\": \"LEAGUE\",\n  \"scheduledDate\": \"2024-01-15T20:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/matches",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Match",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"homeScore\": 2,\n  \"awayScore\": 1,\n  \"status\": \"COMPLETED\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/matches/{{match_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", "{{match_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Match",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/matches/{{match_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", "{{match_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Player Match Stats",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"playerId\": \"{{player_id}}\",\n  \"goals\": 2,\n  \"assists\": 1,\n  \"rating\": 8.5,\n  \"minutesPlayed\": 90\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/matches/{{match_id}}/player-stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", "{{match_id}}", "player-stats"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Match Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/matches/{{match_id}}/summary",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", "{{match_id}}", "summary"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Statistics",
+			"item": [
+				{
+					"name": "Player Leaderboards",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/stats/leaderboards?statType=goals&seasonId={{season_id}}&position=ST&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "leaderboards"],
+							"query": [
+								{
+									"key": "statType",
+									"value": "goals"
+								},
+								{
+									"key": "seasonId",
+									"value": "{{season_id}}"
+								},
+								{
+									"key": "position",
+									"value": "ST"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Team Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/stats/teams?seasonId={{season_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "teams"],
+							"query": [
+								{
+									"key": "seasonId",
+									"value": "{{season_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Season Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/stats/seasons/{{season_id}}/summary",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "seasons", "{{season_id}}", "summary"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Position-based Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/stats/positions/ST?seasonId={{season_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "positions", "ST"],
+							"query": [
+								{
+									"key": "seasonId",
+									"value": "{{season_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Seasons",
+			"item": [
+				{
+					"name": "List All Seasons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seasons?status=ACTIVE",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons"],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Season by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seasons/{{season_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", "{{season_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Season",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Season 2024\",\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"description\": \"FC 26 Pro Clubs Season 2024\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/seasons",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Season",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"COMPLETED\",\n  \"endDate\": \"2024-06-30\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/seasons/{{season_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", "{{season_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Season",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{team_admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/seasons/{{season_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", "{{season_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current Season",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seasons/current",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", "current"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Upcoming Seasons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seasons/upcoming",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", "upcoming"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "List All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{competition_admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"newusername\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{competition_admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}", "stats"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-save tokens from responses",
+					"if (pm.response && pm.response.code === 200 || pm.response.code === 201) {",
+					"    try {",
+					"        const response = pm.response.json();",
+					"        if (response.data && response.data.token) {",
+					"            pm.environment.set('auth_token', response.data.token);",
+					"            console.log('Token saved:', response.data.token);",
+					"        }",
+					"    } catch (error) {",
+					"        console.log('Error parsing response:', error);",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "team_admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "league_admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "competition_admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "player_id",
+			"value": "",
+
+			"type": "string"
+		},
+		{
+			"key": "team_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "match_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "season_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

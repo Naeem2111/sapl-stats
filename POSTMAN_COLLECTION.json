@@ -1,0 +1,591 @@
+{
+	"info": {
+		"_postman_id": "proclubs-stats-hub-api",
+		"name": "Pro Clubs Stats Hub API",
+		"description": "Complete API collection for FC 26 Pro Clubs league statistics system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"team_admin_1@proclubs.com\",\n  \"password\": \"team123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response && pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.success && response.data.token) {",
+									"        pm.environment.set('auth_token', response.data.token);",
+									"        console.log('Token saved:', response.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "profile"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						}
+					}
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "user_id_here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Teams",
+			"item": [
+				{
+					"name": "Get All Teams",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/teams",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams"]
+						}
+					}
+				},
+				{
+					"name": "Get Team by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/teams/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "team_id_here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Players",
+			"item": [
+				{
+					"name": "Get All Players",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/players",
+							"host": ["{{base_url}}"],
+							"path": ["api", "players"]
+						}
+					}
+				},
+				{
+					"name": "Get Player by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/players/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "players", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "player_id_here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Matches",
+			"item": [
+				{
+					"name": "Get All Matches",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/matches",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches"]
+						}
+					}
+				},
+				{
+					"name": "Get Match by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/matches/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "match_id_here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Match",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"homeTeamId\": \"team_id_here\",\n  \"awayTeamId\": \"team_id_here\",\n  \"date\": \"2024-12-25T20:00:00Z\",\n  \"competitionType\": \"LEAGUE\",\n  \"seasonId\": \"season_id_here\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/matches",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches"]
+						}
+					}
+				},
+				{
+					"name": "Update Match Scores",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"homeScore\": 2,\n  \"awayScore\": 1,\n  \"status\": \"COMPLETED\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/matches/:id/scores",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", ":id", "scores"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "match_id_here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Match",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/matches/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "match_id_here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Seasons",
+			"item": [
+				{
+					"name": "Get All Seasons",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/seasons",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons"]
+						}
+					}
+				},
+				{
+					"name": "Get Season by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/seasons/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "season_id_here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Statistics",
+			"item": [
+				{
+					"name": "Get Player Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats/player/:playerId?season=season_id_here",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "player", ":playerId"],
+							"query": [
+								{
+									"key": "season",
+									"value": "season_id_here"
+								}
+							],
+							"variable": [
+								{
+									"key": "playerId",
+									"value": "player_id_here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Team Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats/team/:teamId?season=season_id_here",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "team", ":teamId"],
+							"query": [
+								{
+									"key": "season",
+									"value": "season_id_here"
+								}
+							],
+							"variable": [
+								{
+									"key": "teamId",
+									"value": "team_id_here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Badges",
+			"item": [
+				{
+					"name": "Get All Badges",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/badges",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges"]
+						}
+					}
+				},
+				{
+					"name": "Get Badges by Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/badges/category/:category",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges", "category", ":category"],
+							"variable": [
+								{
+									"key": "category",
+									"value": "PERFORMANCE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Player Badges",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/badges/player/:playerId?season=all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges", "player", ":playerId"],
+							"query": [
+								{
+									"key": "season",
+									"value": "all"
+								}
+							],
+							"variable": [
+								{
+									"key": "playerId",
+									"value": "player_id_here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Player Badge Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/badges/player/:playerId/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges", "player", ":playerId", "stats"],
+							"variable": [
+								{
+									"key": "playerId",
+									"value": "player_id_here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Badge Leaderboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/badges/leaderboard/:badgeId?season=all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges", "leaderboard", ":badgeId"],
+							"query": [
+								{
+									"key": "season",
+									"value": "all"
+								}
+							],
+							"variable": [
+								{
+									"key": "badgeId",
+									"value": "badge_id_here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-save token on successful login",
+					"if (pm.request.url.path.includes('/auth/login') && pm.request.method === 'POST') {",
+					"    console.log('Login request detected');",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

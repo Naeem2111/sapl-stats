@@ -1,47 +1,49 @@
 {
-	"name": "proclubs-stats-hub-backend",
+	"name": "proclubs-stats-hub-frontend",
 	"version": "1.0.0",
-	"description": "Backend API for FC 26 Pro Clubs league statistics",
-	"main": "src/server.js",
-	"scripts": {
-		"start": "node src/server.js",
-		"dev": "nodemon src/server.js",
-		"test": "jest",
-		"test:watch": "jest --watch",
-		"db:migrate": "prisma migrate dev",
-		"db:generate": "prisma generate",
-		"db:seed": "node src/database/seed.js",
-		"db:studio": "prisma studio"
-	},
-	"keywords": [
-		"football",
-		"pro-clubs",
-		"statistics",
-		"api",
-		"fc26"
-	],
-	"author": "Your Name",
-	"license": "MIT",
+	"description": "Frontend UI for FC 26 Pro Clubs league statistics system",
+	"private": true,
 	"dependencies": {
-		"express": "^4.18.2",
-		"cors": "^2.8.5",
-		"helmet": "^7.1.0",
-		"morgan": "^1.10.0",
-		"dotenv": "^16.3.1",
-		"bcryptjs": "^2.4.3",
-		"jsonwebtoken": "^9.0.2",
-		"joi": "^17.11.0",
-		"prisma": "^5.6.0",
-		"@prisma/client": "^5.6.0",
-		"express-rate-limit": "^7.1.5",
-		"compression": "^1.7.4"
+		"@testing-library/jest-dom": "^5.16.4",
+		"@testing-library/react": "^13.3.0",
+		"@testing-library/user-event": "^13.5.0",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^6.3.0",
+		"react-scripts": "5.0.1",
+		"axios": "^1.4.0",
+		"date-fns": "^2.30.0",
+		"lucide-react": "^0.263.1",
+		"clsx": "^1.2.1",
+		"tailwind-merge": "^1.14.0"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
 	},
 	"devDependencies": {
-		"nodemon": "^3.0.2",
-		"jest": "^29.7.0",
-		"supertest": "^6.3.3"
-	},
-	"engines": {
-		"node": ">=18.0.0"
+		"tailwindcss": "^3.3.0",
+		"autoprefixer": "^10.4.14",
+		"postcss": "^8.4.24"
 	}
 }

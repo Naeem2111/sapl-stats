@@ -1,0 +1,250 @@
+{
+	"info": {
+		"_postman_id": "87bb3d60-bf5f-41ee-8724-b93e190dc877",
+		"name": "LeagueRepublic API",
+		"description": "A collection of API endpoints from the LeagueRepublic API documentation (Last updated 8th November 2023).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3504932",
+		"_collection_link": "https://blue-zodiac-870893.postman.co/workspace/QuoteServer~7d2f0525-bf7e-42db-83b3-e9c2b1efb0d4/collection/3504932-87bb3d60-bf5f-41ee-8724-b93e190dc877?action=share&source=collection_link&creator=3504932"
+	},
+	"item": [
+		{
+			"name": "Get Seasons For League",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `\r",
+							"<style type=\"text/css\">\r",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+							"    .tftable tr {background-color:#ffffff;}\r",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+							"    .tftable tr:hover {background-color:#e0ffff;}\r",
+							"</style>\r",
+							"\r",
+							"<table class=\"tftable\" border=\"1\">\r",
+							"    <tr>\r",
+							"        <th>Current Season</th>\r",
+							"        <th>Season End Date</th>\r",
+							"        <th>Season End Date (Milliseconds)</th>\r",
+							"        <th>Season ID</th>\r",
+							"        <th>Season Name</th>\r",
+							"        <th>Season Start Date</th>\r",
+							"        <th>Season Start Date (Milliseconds)</th>\r",
+							"    </tr>\r",
+							"    \r",
+							"    {{#each response}}\r",
+							"        <tr>\r",
+							"            <td>{{currentSeason}}</td>\r",
+							"            <td>{{seasonEndDate}}</td>\r",
+							"            <td>{{seasonEndDateInMilliseconds}}</td>\r",
+							"            <td>{{seasonID}}</td>\r",
+							"            <td>{{seasonName}}</td>\r",
+							"            <td>{{seasonStartDate}}</td>\r",
+							"            <td>{{seasonStartDateInMilliseconds}}</td>\r",
+							"        </tr>\r",
+							"    {{/each}}\r",
+							"</table>\r",
+							"`;\r",
+							"\r",
+							"function constructVisualizerPayload() {\r",
+							"    return {response: pm.response.json()}\r",
+							"}\r",
+							"\r",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.leaguerepublic.com/json/getSeasonsForLeague/10727087.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"leaguerepublic",
+						"com"
+					],
+					"path": [
+						"json",
+						"getSeasonsForLeague",
+						"10727087.json"
+					]
+				},
+				"description": "Returns a list of seasons for a league. Replace '770829510' with your leagueID."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Fixture Groups For Season",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.leaguerepublic.com/json/getFixtureGroupsForSeason/825650177.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"leaguerepublic",
+						"com"
+					],
+					"path": [
+						"json",
+						"getFixtureGroupsForSeason",
+						"825650177.json"
+					]
+				},
+				"description": "Returns a list of fixture groups for a season. Replace '153020000' with your seasonID."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Standings For Fixture Group (Division)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.leaguerepublic.com/json/getStandingsForFixtureGroup/1/826927856.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"leaguerepublic",
+						"com"
+					],
+					"path": [
+						"json",
+						"getStandingsForFixtureGroup",
+						"1",
+						"826927856.json"
+					]
+				},
+				"description": "Returns division standings for a fixture group. Replace '1' with fixtureTypeID and '985736993' with fixtureGroupIdentifier."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Standings For Fixture Group (Competition)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.leaguerepublic.com/json/getStandingsForFixtureGroup/2/623935158.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"leaguerepublic",
+						"com"
+					],
+					"path": [
+						"json",
+						"getStandingsForFixtureGroup",
+						"2",
+						"623935158.json"
+					]
+				},
+				"description": "Returns competition group stage standings. Replace '2' with fixtureTypeID and '658718654' with fixtureGroupIdentifier."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Fixtures For Season",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.leaguerepublic.com/json/getFixturesForSeason/825650177.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"leaguerepublic",
+						"com"
+					],
+					"path": [
+						"json",
+						"getFixturesForSeason",
+						"825650177.json"
+					]
+				},
+				"description": "Returns fixtures/matches for a season. Replace '153020000' with your seasonID."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Full Fixture Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.leaguerepublic.com/json/getFullFixtureDetails/40185260.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"leaguerepublic",
+						"com"
+					],
+					"path": [
+						"json",
+						"getFullFixtureDetails",
+						"40185260.json"
+					]
+				},
+				"description": "Returns full details for a fixture/match. Replace '32609322' with your fixtureID."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Teams For Fixture Group",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.leaguerepublic.com/json/getTeamsForFixtureGroup/1/254890756.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"leaguerepublic",
+						"com"
+					],
+					"path": [
+						"json",
+						"getTeamsForFixtureGroup",
+						"1",
+						"254890756.json"
+					]
+				},
+				"description": "Returns a list of teams for a fixture group. Replace '1' with fixtureTypeID and '985736993' with fixtureGroupIdentifier."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Statistic Summary For Team",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.leaguerepublic.com/json/getStatisticSummaryForTeam/153020000/477233544.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"leaguerepublic",
+						"com"
+					],
+					"path": [
+						"json",
+						"getStatisticSummaryForTeam",
+						"153020000",
+						"477233544.json"
+					]
+				},
+				"description": "Returns cumulative statistics for a team in a season. Replace '153020000' with seasonID and '154033156' with teamID."
+			},
+			"response": []
+		}
+	]
+}

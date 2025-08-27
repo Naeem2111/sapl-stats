@@ -79,14 +79,33 @@ const requireRole = (roles) => {
 	};
 };
 
-const requireAdmin = requireRole(["ADMIN"]);
-const requireManager = requireRole(["ADMIN", "MANAGER"]);
-const requirePlayer = requireRole(["ADMIN", "MANAGER", "PLAYER"]);
+// Role hierarchy: COMPETITION_ADMIN > LEAGUE_ADMIN > TEAM_ADMIN > PLAYER
+const requireCompetitionAdmin = requireRole(["COMPETITION_ADMIN"]);
+const requireLeagueAdmin = requireRole(["COMPETITION_ADMIN", "LEAGUE_ADMIN"]);
+const requireTeamAdmin = requireRole([
+	"COMPETITION_ADMIN",
+	"LEAGUE_ADMIN",
+	"TEAM_ADMIN",
+]);
+const requirePlayer = requireRole([
+	"COMPETITION_ADMIN",
+	"LEAGUE_ADMIN",
+	"TEAM_ADMIN",
+	"PLAYER",
+]);
+
+// Legacy aliases for backward compatibility
+const requireAdmin = requireLeagueAdmin;
+const requireManager = requireTeamAdmin;
 
 module.exports = {
 	authenticateToken,
 	requireRole,
+	requireCompetitionAdmin,
+	requireLeagueAdmin,
+	requireTeamAdmin,
+	requirePlayer,
+	// Legacy exports for backward compatibility
 	requireAdmin,
 	requireManager,
-	requirePlayer,
 };

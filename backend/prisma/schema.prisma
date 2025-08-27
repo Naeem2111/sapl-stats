@@ -1,0 +1,381 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(PLAYER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  players Player[]
+
+  @@map("users")
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  logoUrl   String?
+  saplId    String?  @unique // SAPL team ID
+  saplData  Json?    // Store additional SAPL data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  players           Player[]
+  homeMatches       Match[] @relation("HomeTeam")
+  awayMatches       Match[] @relation("AwayTeam")
+  playerMatchStats  PlayerMatchStat[]
+  playerSeasonStats PlayerSeasonStat[]
+  cupEntries        CupEntry[] // Teams participating in cups
+
+  @@map("teams")
+}
+
+model Season {
+  id        String   @id @default(cuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  matches           Match[]
+  playerSeasonStats PlayerSeasonStat[]
+  awardedBadges     AwardedBadge[]
+  cups              Cup[] // Seasons can have multiple cups
+
+  @@map("seasons")
+}
+
+model Cup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  seasonId    String
+  format      CupFormat
+  status      CupStatus @default(PLANNING)
+  startDate   DateTime
+  endDate     DateTime
+  maxTeams    Int?
+  minTeams    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  season      Season      @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  entries     CupEntry[]
+  matches     Match[]
+  rounds      CupRound[]
+  awardedBadges AwardedBadge[]
+
+  @@map("cups")
+}
+
+model CupEntry {
+  id        String   @id @default(cuid())
+  cupId     String
+  teamId    String
+  status    CupEntryStatus @default(REGISTERED)
+  seed      Int?     // Seeding for knockout tournaments
+  group     String?  // Group for group stage tournaments
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cup       Cup       @relation(fields: [cupId], references: [id], onDelete: Cascade)
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([cupId, teamId])
+  @@map("cup_entries")
+}
+
+model CupRound {
+  id          String   @id @default(cuid())
+  cupId       String
+  name        String   // e.g., "Group Stage", "Round of 16", "Quarter Final"
+  roundNumber Int      // Order of rounds
+  format      RoundFormat
+  status      RoundStatus @default(PLANNING)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  cup         Cup      @relation(fields: [cupId], references: [id], onDelete: Cascade)
+  matches     Match[]
+
+  @@map("cup_rounds")
+}
+
+model Player {
+  id        String   @id @default(cuid())
+  gamertag  String   @unique
+  realName  String?
+  position  PlayerPosition
+  userId    String?
+  teamId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user              User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team              Team?              @relation(fields: [teamId], references: [id])
+  playerMatchStats  PlayerMatchStat[]
+  playerSeasonStats PlayerSeasonStat[]
+  awardedBadges     AwardedBadge[]
+
+  @@map("players")
+}
+
+model Match {
+  id              String   @id @default(cuid())
+  seasonId        String
+  homeTeamId      String
+  awayTeamId      String
+  date            DateTime
+  homeScore       Int      @default(0)
+  awayScore       Int      @default(0)
+  competitionType CompetitionType
+  status          MatchStatus      @default(SCHEDULED)
+  cupId           String?          // If match is part of a cup
+  cupRoundId      String?          // Which round of the cup
+  matchNumber     Int?             // Match number in the cup
+  isKnockout      Boolean          @default(false)
+  extraTime       ExtraTimeResult?
+  penalties       PenaltyResult?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  season          Season           @relation(fields: [seasonId], references: [id])
+  homeTeam        Team             @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam        Team             @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  cup             Cup?             @relation(fields: [cupId], references: [id])
+  cupRound        CupRound?        @relation(fields: [cupRoundId], references: [id])
+  playerMatchStats PlayerMatchStat[]
+  awardedBadges   AwardedBadge[]
+
+  @@map("matches")
+}
+
+model PlayerMatchStat {
+  id            String   @id @default(cuid())
+  matchId       String
+  playerId      String
+  teamId        String
+  goals         Int      @default(0)
+  assists       Int      @default(0)
+  shots         Int      @default(0)
+  passes        Int      @default(0)
+  passAccuracy  Float    @default(0)
+  tackles       Int      @default(0)
+  interceptions Int      @default(0)
+  saves         Int      @default(0)
+  cleanSheet    Boolean  @default(false)
+  rating        Float    @default(0)
+  minutesPlayed Int      @default(0)
+  yellowCards   Int      @default(0)
+  redCards      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  @@unique([matchId, playerId])
+  @@map("player_match_stats")
+}
+
+model PlayerSeasonStat {
+  id               String   @id @default(cuid())
+  seasonId         String
+  playerId         String
+  teamId           String
+  totalGoals       Int      @default(0)
+  totalAssists     Int      @default(0)
+  totalShots       Int      @default(0)
+  totalPasses      Int      @default(0)
+  avgPassAccuracy  Float    @default(0)
+  totalTackles     Int      @default(0)
+  totalInterceptions Int    @default(0)
+  totalSaves       Int      @default(0)
+  cleanSheets      Int      @default(0)
+  avgRating        Float    @default(0)
+  matchesPlayed    Int      @default(0)
+  yellowCards      Int      @default(0)
+  redCards         Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  season Season @relation(fields: [seasonId], references: [id])
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  @@unique([seasonId, playerId])
+  @@map("player_season_stats")
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  iconUrl     String?
+  category    BadgeCategory
+  criteria    BadgeCriteria
+  isRepeatable Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  awardedBadges AwardedBadge[]
+
+  @@map("badges")
+}
+
+model AwardedBadge {
+  id        String   @id @default(cuid())
+  badgeId   String
+  playerId  String
+  seasonId  String?
+  matchId   String?
+  cupId     String?  // If badge was earned in a cup
+  awardedAt DateTime @default(now())
+  metadata  Json? // Store additional data like stats when badge was earned
+
+  // Relations
+  badge  Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  season Season? @relation(fields: [seasonId], references: [id])
+  match  Match? @relation(fields: [matchId], references: [id])
+  cup    Cup?   @relation(fields: [cupId], references: [id])
+
+  @@unique([badgeId, playerId, seasonId, matchId, cupId]) // Prevent duplicate awards in same context
+  @@map("awarded_badges")
+}
+
+enum UserRole {
+  COMPETITION_ADMIN
+  LEAGUE_ADMIN
+  TEAM_ADMIN
+  PLAYER
+}
+
+enum PlayerPosition {
+  GK
+  CB
+  LB
+  RB
+  CDM
+  CM
+  CAM
+  LM
+  RM
+  LW
+  RW
+  ST
+  CF
+}
+
+enum CompetitionType {
+  LEAGUE
+  CUP
+  FRIENDLY
+  PLAYOFF
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}
+
+enum CupFormat {
+  KNOCKOUT      // Single elimination
+  DOUBLE_KNOCKOUT // Double elimination
+  GROUP_KNOCKOUT  // Group stage + knockout
+  ROUND_ROBIN   // All teams play each other
+  SWISS_SYSTEM  // Swiss tournament system
+}
+
+enum CupStatus {
+  PLANNING      // Cup is being planned
+  REGISTRATION  // Teams can register
+  SEEDING       // Teams are being seeded
+  ACTIVE        // Cup is running
+  COMPLETED     // Cup is finished
+  CANCELLED     // Cup was cancelled
+}
+
+enum CupEntryStatus {
+  REGISTERED    // Team has registered
+  CONFIRMED     // Team is confirmed
+  WITHDRAWN     // Team has withdrawn
+  DISQUALIFIED  // Team was disqualified
+}
+
+enum RoundFormat {
+  GROUP_STAGE   // Round robin within groups
+  KNOCKOUT      // Single elimination
+  PLAYOFF       // Best of series
+}
+
+enum RoundStatus {
+  PLANNING      // Round is being planned
+  ACTIVE        // Round is running
+  COMPLETED     // Round is finished
+}
+
+enum ExtraTimeResult {
+  HOME_WIN
+  AWAY_WIN
+  DRAW
+}
+
+enum PenaltyResult {
+  HOME_WIN
+  AWAY_WIN
+}
+
+enum BadgeCategory {
+  PERFORMANCE
+  ACHIEVEMENT
+  MILESTONE
+  SPECIAL
+}
+
+enum BadgeCriteria {
+  GOALS
+  ASSISTS
+  CLEAN_SHEETS
+  TEAM_OF_WEEK
+  HATTRICK
+  BRACE
+  PLAYMAKER
+  DEFENDER
+  GOALKEEPER
+  SEASON_LEADER
+  MATCH_WINNER
+  COMEBACK
+  PERFECT_GAME
+}

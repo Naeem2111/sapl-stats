@@ -55,25 +55,36 @@ async function main() {
 		// Create sample users and players
 		console.log("👥 Creating users and players...");
 
-		// Admin user
-		const adminPassword = await bcrypt.hash("admin123", 12);
-		const adminUser = await prisma.user.create({
+		// Competition Admin user (highest level - can issue bans, create competitions, manual adjustments)
+		const competitionAdminPassword = await bcrypt.hash("admin123", 12);
+		const competitionAdminUser = await prisma.user.create({
 			data: {
-				username: "admin",
-				email: "admin@proclubs.com",
-				passwordHash: adminPassword,
-				role: "ADMIN",
+				username: "competition_admin",
+				email: "competition.admin@proclubs.com",
+				passwordHash: competitionAdminPassword,
+				role: "COMPETITION_ADMIN",
 			},
 		});
 
-		// Manager user
-		const managerPassword = await bcrypt.hash("manager123", 12);
-		const managerUser = await prisma.user.create({
+		// League Admin user (can manage all teams + team admin powers)
+		const leagueAdminPassword = await bcrypt.hash("admin123", 12);
+		const leagueAdminUser = await prisma.user.create({
 			data: {
-				username: "manager",
-				email: "manager@proclubs.com",
-				passwordHash: managerPassword,
-				role: "MANAGER",
+				username: "league_admin",
+				email: "league.admin@proclubs.com",
+				passwordHash: leagueAdminPassword,
+				role: "LEAGUE_ADMIN",
+			},
+		});
+
+		// Team Admin user (captain/vice captain - can capture stats, request player changes)
+		const teamAdminPassword = await bcrypt.hash("admin123", 12);
+		const teamAdminUser = await prisma.user.create({
+			data: {
+				username: "team_admin",
+				email: "team.admin@proclubs.com",
+				passwordHash: teamAdminPassword,
+				role: "TEAM_ADMIN",
 			},
 		});
 

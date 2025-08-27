@@ -1,11 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const morgan = require("morgan");
 const compression = require("compression");
-const rateLimit = require("express-rate-limit");
-require("dotenv").config();
 
+// Import routes
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const teamRoutes = require("./routes/teams");
@@ -13,34 +11,33 @@ const playerRoutes = require("./routes/players");
 const matchRoutes = require("./routes/matches");
 const statsRoutes = require("./routes/stats");
 const seasonRoutes = require("./routes/seasons");
+const badgeRoutes = require("./routes/badges");
+const competitionRoutes = require("./routes/competitions");
+const adminRoutes = require("./routes/admin");
+const saplRoutes = require("./routes/sapl");
+const cupRoutes = require("./routes/cups");
 
+// Import middleware
 const { errorHandler } = require("./middleware/errorHandler");
 const { notFound } = require("./middleware/notFound");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Security middleware
 app.use(helmet());
 
-// Rate limiting
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // limit each IP to 100 requests per windowMs
-	message: "Too many requests from this IP, please try again later.",
-});
-app.use("/api/", limiter);
-
 // CORS configuration
+const corsOrigins =
+	process.env.NODE_ENV === "production"
+		? [process.env.CORS_ORIGIN || "https://your-frontend-domain.vercel.app"]
+		: ["http://localhost:3001", "http://127.0.0.1:3001"];
+
 app.use(
 	cors({
-		origin: process.env.FRONTEND_URL || "http://localhost:3000",
+		origin: corsOrigins,
 		credentials: true,
 	})
 );
-
-// Logging middleware
-app.use(morgan("combined"));
 
 // Compression middleware
 app.use(compression());
@@ -49,13 +46,18 @@ app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// Request logging middleware
+app.use((req, res, next) => {
+	console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+	next();
+});
+
 // Health check endpoint
 app.get("/health", (req, res) => {
-	res.status(200).json({
-		status: "OK",
-		message: "FC 26 Pro Clubs Stats Hub API is running",
+	res.json({
+		status: "healthy",
 		timestamp: new Date().toISOString(),
-		version: "1.0.0",
+		uptime: process.uptime(),
 	});
 });
 
@@ -67,20 +69,22 @@ app.use("/api/players", playerRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/seasons", seasonRoutes);
-
-// 404 handler
-app.use(notFound);
+app.use("/api/badges", badgeRoutes);
+app.use("/api/competitions", competitionRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/sapl", saplRoutes);
+app.use("/api/cups", cupRoutes);
 
 // Error handling middleware
+app.use(notFound);
 app.use(errorHandler);
 
-// Start server
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-	console.log(`🚀 FC 26 Pro Clubs Stats Hub API running on port ${PORT}`);
-	console.log(
-		`📊 Database: ${process.env.DATABASE_URL ? "Configured" : "Not configured"}`
-	);
-	console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+	console.log(`🚀 Server running on port ${PORT}`);
+	console.log(`📊 Health check: http://localhost:${PORT}/health`);
+	console.log(`🔐 API endpoints: http://localhost:${PORT}/api`);
 });
 
 module.exports = app;
