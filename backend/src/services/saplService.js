@@ -1,16 +1,16 @@
 const axios = require("axios");
 
 class SAPLService {
-		constructor() {
+	constructor() {
 		// LeagueRepublic API configuration for SAPL
 		this.baseUrl = "https://api.leaguerepublic.com/json";
 		this.leagueId = "10727087"; // SAPL League ID
 		this.season28Id = "825650177"; // Season 28 ID from the collection
 		this.timeout = 15000; // 15 seconds
-		
+
 		// Demo mode flag - set to false to use real SAPL API data
 		this.demoMode = false;
-		
+
 		// Rate limiting configuration
 		this.rateLimitDelay = 1000; // 1 second between requests
 		this.maxRetries = 3;
@@ -255,41 +255,45 @@ class SAPLService {
 	 */
 	async makeRateLimitedCall(url, options = {}) {
 		let lastError;
-		
+
 		for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
 			try {
 				// Add delay between requests to respect rate limits
 				if (attempt > 1) {
-					await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+					await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
 				}
-				
+
 				const response = await axios.get(url, {
 					timeout: this.timeout,
-					...options
+					...options,
 				});
-				
+
 				// Add delay after successful request to respect rate limits
-				await new Promise(resolve => setTimeout(resolve, this.rateLimitDelay));
-				
+				await new Promise((resolve) =>
+					setTimeout(resolve, this.rateLimitDelay)
+				);
+
 				return response;
 			} catch (error) {
 				lastError = error;
-				
+
 				// If it's a rate limit error, wait longer before retrying
 				if (error.response?.status === 429) {
 					const waitTime = this.retryDelay * attempt;
-					console.log(`Rate limited, waiting ${waitTime}ms before retry ${attempt}/${this.maxRetries}`);
-					await new Promise(resolve => setTimeout(resolve, waitTime));
+					console.log(
+						`Rate limited, waiting ${waitTime}ms before retry ${attempt}/${this.maxRetries}`
+					);
+					await new Promise((resolve) => setTimeout(resolve, waitTime));
 				} else if (error.response?.status >= 500) {
 					// Server error, wait before retry
-					await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+					await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
 				} else {
 					// Client error (4xx), don't retry
 					break;
 				}
 			}
 		}
-		
+
 		throw lastError;
 	}
 
@@ -305,7 +309,10 @@ class SAPLService {
 			);
 			return response.data || {};
 		} catch (error) {
-			console.error(`Error fetching SAPL season details for ${seasonId}:`, error.message);
+			console.error(
+				`Error fetching SAPL season details for ${seasonId}:`,
+				error.message
+			);
 			// Return default values if API call fails
 			return {
 				name: `SAPL Season ${seasonId}`,
@@ -506,7 +513,7 @@ class SAPLService {
 
 			// Get season details from SAPL API
 			const seasonDetails = await this.getSeasonDetails(seasonId);
-			
+
 			// First, create or update the season
 			try {
 				const seasonData = {
@@ -573,8 +580,10 @@ class SAPLService {
 	async syncFixturesForSeason(prisma, seasonId, saplSeasonId) {
 		try {
 			const fixtures = await this.getFixturesForSeason(saplSeasonId);
-			console.log(`Processing ${fixtures.length} fixtures for season ${saplSeasonId}...`);
-			
+			console.log(
+				`Processing ${fixtures.length} fixtures for season ${saplSeasonId}...`
+			);
+
 			const results = {
 				created: 0,
 				updated: 0,
@@ -584,7 +593,11 @@ class SAPLService {
 			for (let i = 0; i < fixtures.length; i++) {
 				const fixture = fixtures[i];
 				if (i % 10 === 0) {
-					console.log(`Processing fixture ${i + 1}/${fixtures.length} (${Math.round(((i + 1) / fixtures.length) * 100)}%)`);
+					console.log(
+						`Processing fixture ${i + 1}/${fixtures.length} (${Math.round(
+							((i + 1) / fixtures.length) * 100
+						)}%)`
+					);
 				}
 				try {
 					// Get full fixture details
@@ -594,38 +607,110 @@ class SAPLService {
 
 					// Find or create home team
 					let homeTeam = await prisma.team.findFirst({
-						where: { saplId: String(fullFixture.homeTeamID || fixture.homeTeamID) },
+						where: {
+							saplId: String(fullFixture.homeTeamID || fixture.homeTeamID),
+						},
 					});
-					
+
 					if (!homeTeam) {
-						console.log(`Creating missing home team with SAPL ID: ${fullFixture.homeTeamID || fixture.homeTeamID}`);
+						console.log(
+							`Creating missing home team with SAPL ID: ${
+								fullFixture.homeTeamID || fixture.homeTeamID
+							}`
+						);
 						// Create the missing team with basic data
 						homeTeam = await prisma.team.create({
 							data: {
-								name: fullFixture.homeTeamName || fixture.homeTeamName || `Team ${fullFixture.homeTeamID || fixture.homeTeamID}`,
+								name:
+									fullFixture.homeTeamName ||
+									fixture.homeTeamName ||
+									`Team ${fullFixture.homeTeamID || fixture.homeTeamID}`,
 								saplId: String(fullFixture.homeTeamID || fixture.homeTeamID),
 								saplData: { id: fullFixture.homeTeamID || fixture.homeTeamID },
 							},
 						});
-						console.log(`Created home team: ${homeTeam.name} (ID: ${homeTeam.id})`);
+						console.log(
+							`Created home team: ${homeTeam.name} (ID: ${homeTeam.id})`
+						);
 					}
 
 					// Find or create away team
 					let awayTeam = await prisma.team.findFirst({
-						where: { saplId: String(fullFixture.awayTeamID || fixture.awayTeamID) },
+						where: {
+							saplId: String(fullFixture.awayTeamID || fixture.awayTeamID),
+						},
 					});
-					
+
 					if (!awayTeam) {
-						console.log(`Creating missing away team with SAPL ID: ${fullFixture.awayTeamID || fixture.awayTeamID}`);
+						console.log(
+							`Creating missing away team with SAPL ID: ${
+								fullFixture.awayTeamID || fixture.awayTeamID
+							}`
+						);
 						// Create the missing team with basic data
 						awayTeam = await prisma.team.create({
 							data: {
-								name: fullFixture.awayTeamName || fixture.awayTeamName || `Team ${fullFixture.awayTeamID || fixture.awayTeamID}`,
+								name:
+									fullFixture.awayTeamName ||
+									fixture.awayTeamName ||
+									`Team ${fullFixture.awayTeamID || fixture.awayTeamID}`,
 								saplId: String(fullFixture.awayTeamID || fixture.awayTeamID),
 								saplData: { id: fullFixture.awayTeamID || fixture.awayTeamID },
 							},
 						});
-						console.log(`Created away team: ${awayTeam.name} (ID: ${awayTeam.id})`);
+						console.log(
+							`Created away team: ${awayTeam.name} (ID: ${awayTeam.id})`
+						);
+					}
+
+					// Parse date safely
+					const parseDate = (dateStr) => {
+						if (!dateStr || dateStr === "" || dateStr === "Invalid Date")
+							return null;
+
+						try {
+							// Handle SAPL date format: "20250630 22:00"
+							if (
+								typeof dateStr === "string" &&
+								dateStr.match(/^\d{8}\s\d{2}:\d{2}$/)
+							) {
+								const year = dateStr.substring(0, 4);
+								const month = dateStr.substring(4, 6);
+								const day = dateStr.substring(6, 8);
+								const time = dateStr.substring(9);
+								const formattedDate = `${year}-${month}-${day}T${time}:00`;
+								const date = new Date(formattedDate);
+
+								if (!isNaN(date.getTime())) {
+									return date;
+								}
+							}
+
+							// Try standard date parsing
+							const date = new Date(dateStr);
+							if (!isNaN(date.getTime())) {
+								return date;
+							}
+
+							console.log(`⚠️  Could not parse date: ${dateStr}`);
+							return null;
+						} catch (error) {
+							console.log(`⚠️  Could not parse date: ${dateStr}`);
+							return null;
+						}
+					};
+
+					const fixtureDate = parseDate(fixture.fixtureDate || fixture.date);
+
+					// Skip fixtures with invalid dates
+					if (!fixtureDate) {
+						console.log(
+							`⚠️  Skipping fixture ${fixture.fixtureID} due to invalid date: ${
+								fixture.fixtureDate || fixture.date
+							}`
+						);
+						results.errors++;
+						continue;
 					}
 
 					// Check if fixture already exists
@@ -634,20 +719,26 @@ class SAPLService {
 							seasonId: seasonId,
 							homeTeamId: homeTeam.id,
 							awayTeamId: awayTeam.id,
-							date: new Date(fixture.fixtureDate || fixture.date),
+							date: fixtureDate,
 						},
 					});
+
+					// Parse scores safely (convert strings to integers)
+					const parseScore = (score) => {
+						if (score === null || score === undefined || score === "") return 0;
+						const parsed = parseInt(score, 10);
+						return isNaN(parsed) ? 0 : parsed;
+					};
 
 					const fixtureData = {
 						seasonId: seasonId,
 						homeTeamId: homeTeam.id,
 						awayTeamId: awayTeam.id,
-						date: new Date(fixture.fixtureDate || fixture.date),
-						homeScore: fullFixture.homeScore || fixture.homeScore || 0,
-						awayScore: fullFixture.awayScore || fixture.awayScore || 0,
+						date: fixtureDate,
+						homeScore: parseScore(fullFixture.homeScore || fixture.homeScore),
+						awayScore: parseScore(fullFixture.awayScore || fixture.awayScore),
 						competitionType: "LEAGUE", // Default to league
 						status: this.mapFixtureStatus(fullFixture.status || fixture.status),
-						saplData: fullFixture,
 					};
 
 					if (existingFixture) {

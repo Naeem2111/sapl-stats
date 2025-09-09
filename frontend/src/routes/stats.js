@@ -368,6 +368,19 @@ router.get("/position-stats", async (req, res, next) => {
 					totalMatches: 0,
 					passAccuracySum: 0,
 					ratingSum: 0,
+					// New statistics for all positions
+					totalPossessionLost: 0,
+					totalPossessionWon: 0,
+					manOfTheMatchCount: 0,
+					tackleSuccessRateSum: 0,
+					savesSuccessRateSum: 0,
+					totalGoalsConceded: 0,
+					// Advanced statistics
+					totalXG: 0,
+					duelSuccessSum: 0,
+					totalPlayersBeatenByPass: 0,
+					totalXA: 0,
+					totalTacklesAttempted: 0,
 				};
 			}
 
@@ -384,6 +397,19 @@ router.get("/position-stats", async (req, res, next) => {
 			group.totalMatches += stat.matchesPlayed;
 			group.passAccuracySum += stat.avgPassAccuracy;
 			group.ratingSum += stat.avgRating;
+			// New statistics
+			group.totalPossessionLost += stat.totalPossessionLost || 0;
+			group.totalPossessionWon += stat.totalPossessionWon || 0;
+			group.manOfTheMatchCount += stat.manOfTheMatchCount || 0;
+			group.tackleSuccessRateSum += stat.avgTackleSuccessRate || 0;
+			group.savesSuccessRateSum += stat.avgSavesSuccessRate || 0;
+			group.totalGoalsConceded += stat.totalGoalsConceded || 0;
+			// Advanced statistics
+			group.totalXG += stat.totalXG || 0;
+			group.duelSuccessSum += stat.avgDuelSuccess || 0;
+			group.totalPlayersBeatenByPass += stat.totalPlayersBeatenByPass || 0;
+			group.totalXA += stat.totalXA || 0;
+			group.totalTacklesAttempted += stat.totalTacklesAttempted || 0;
 		});
 
 		// Calculate averages for each position
@@ -399,11 +425,31 @@ router.get("/position-stats", async (req, res, next) => {
 				group.avgCleanSheets = group.totalCleanSheets / group.playerCount;
 				group.avgPassAccuracy = group.passAccuracySum / group.playerCount;
 				group.avgRating = group.ratingSum / group.playerCount;
+				// New statistics averages
+				group.avgPossessionLost = group.totalPossessionLost / group.playerCount;
+				group.avgPossessionWon = group.totalPossessionWon / group.playerCount;
+				group.avgManOfTheMatch = group.manOfTheMatchCount / group.playerCount;
+				group.avgTackleSuccessRate =
+					group.tackleSuccessRateSum / group.playerCount;
+				group.avgSavesSuccessRate =
+					group.savesSuccessRateSum / group.playerCount;
+				group.avgGoalsConceded = group.totalGoalsConceded / group.playerCount;
+				// Advanced statistics averages
+				group.avgXG = group.totalXG / group.playerCount;
+				group.avgDuelSuccess = group.duelSuccessSum / group.playerCount;
+				group.avgPlayersBeatenByPass =
+					group.totalPlayersBeatenByPass / group.playerCount;
+				group.avgXA = group.totalXA / group.playerCount;
+				group.avgTacklesAttempted =
+					group.totalTacklesAttempted / group.playerCount;
 			}
 
 			// Clean up temporary fields
 			delete group.passAccuracySum;
 			delete group.ratingSum;
+			delete group.tackleSuccessRateSum;
+			delete group.savesSuccessRateSum;
+			delete group.duelSuccessSum;
 		});
 
 		res.json({

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
-import { API_ENDPOINTS } from "../utils/api";
+import api from "../utils/api";
 
 const AuthContext = createContext();
 
@@ -17,10 +16,9 @@ export const AuthProvider = ({ children }) => {
 	const [loading, setLoading] = useState(true);
 	const [token, setToken] = useState(localStorage.getItem("token"));
 
-	// Configure axios defaults
+	// Initialize user profile if token exists
 	useEffect(() => {
 		if (token) {
-			axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 			fetchUserProfile();
 		} else {
 			setLoading(false);
@@ -29,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
 	const fetchUserProfile = async () => {
 		try {
-			const response = await axios.get(API_ENDPOINTS.AUTH.PROFILE);
+			const response = await api.get("/auth/profile");
 			setUser(response.data.data);
 		} catch (error) {
 			console.error("Error fetching user profile:", error);
@@ -41,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
 	const login = async (email, password) => {
 		try {
-			const response = await axios.post(API_ENDPOINTS.AUTH.LOGIN, {
+			const response = await api.post("/auth/login", {
 				email,
 				password,
 			});
@@ -52,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 			setToken(newToken);
 			setUser(userData);
 
-			axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+			// Token is automatically handled by the API client
 
 			return { success: true };
 		} catch (error) {
@@ -71,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 		localStorage.removeItem("token");
 		setToken(null);
 		setUser(null);
-		delete axios.defaults.headers.common["Authorization"];
+		// Token removal is automatically handled by the API client
 	};
 
 	const isTeamAdmin = () => {

@@ -9,6 +9,37 @@ const {
 
 const router = express.Router();
 
+// Check if user needs to select a position
+router.get("/position-required", authenticateToken, async (req, res) => {
+	try {
+		const userId = req.user.id;
+
+		// Find player record for this user
+		const player = await prisma.player.findFirst({
+			where: { userId: userId },
+			select: { id: true, position: true, firstName: true, lastName: true },
+		});
+
+		if (!player) {
+			return res.status(404).json({ error: "Player record not found" });
+		}
+
+		const needsPosition = player.position === "UNKNOWN";
+
+		res.json({
+			needsPosition,
+			player: {
+				id: player.id,
+				name: `${player.firstName} ${player.lastName}`,
+				currentPosition: player.position,
+			},
+		});
+	} catch (error) {
+		console.error("Error checking position requirement:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
 // Get all users (COMPETITION_ADMIN, LEAGUE_ADMIN only)
 router.get("/", authenticateToken, requireLeagueAdmin, async (req, res) => {
 	try {

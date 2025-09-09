@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { Eye, EyeOff, Shield, Users } from "lucide-react";
+import { Eye, EyeOff, Shield } from "lucide-react";
+import TestCredentials from "./TestCredentials";
 
 const Login = () => {
 	const [email, setEmail] = useState("");
@@ -42,13 +43,6 @@ const Login = () => {
 					</h2>
 					<p className="mt-2 text-sm text-gray-600">
 						Sign in to access your dashboard
-					</p>
-				</div>
-
-				{/* Quick Login Notice */}
-				<div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-					<p className="text-sm text-green-800 font-medium">
-						🚀 Backend is now running! Use the test credentials below to login.
 					</p>
 				</div>
 
@@ -129,32 +123,31 @@ const Login = () => {
 						</div>
 					</form>
 
-					{/* Demo Credentials */}
-					<div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-						<h3 className="text-sm font-medium text-blue-800 mb-3 flex items-center">
-							<Users className="h-4 w-4 mr-2" />
-							Test Account Credentials
-						</h3>
-						<div className="space-y-2 text-xs text-blue-700">
-							<div className="p-2 bg-white rounded border">
-								<strong>Team Admin:</strong> team_admin_1@proclubs.com / team123
-							</div>
-							<div className="p-2 bg-white rounded border">
-								<strong>League Admin:</strong> league_admin@proclubs.com /
-								league123
-							</div>
-							<div className="p-2 bg-white rounded border">
-								<strong>Competition Admin:</strong>{" "}
-								competition_admin@proclubs.com / admin123
-							</div>
-							<div className="p-2 bg-white rounded border">
-								<strong>Player:</strong> player_1@proclubs.com / player123
-							</div>
+					{/* Test Credentials Component */}
+					<TestCredentials />
+
+					{/* Navigation Links */}
+					<div className="mt-6 pt-6 border-t border-gray-200">
+						<div className="text-center space-y-3">
+							<p className="text-sm text-gray-600">
+								Don't have an account?{" "}
+								<Link
+									to="/register"
+									className="font-medium text-primary-600 hover:text-primary-500"
+								>
+									Register here
+								</Link>
+							</p>
+							<p className="text-sm text-gray-600">
+								Want to see public statistics?{" "}
+								<Link
+									to="/stats"
+									className="font-medium text-primary-600 hover:text-primary-500"
+								>
+									View Stats
+								</Link>
+							</p>
 						</div>
-						<p className="text-xs text-blue-600 mt-2 italic">
-							These accounts have different permission levels for testing the
-							system.
-						</p>
 					</div>
 				</div>
 

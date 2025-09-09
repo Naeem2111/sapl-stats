@@ -9,9 +9,20 @@ const router = express.Router();
 
 // Validation schemas
 const registerSchema = Joi.object({
-	username: Joi.string().alphanum().min(3).max(30).required(),
+	gamertag: Joi.string().min(3).max(30).required(),
 	email: Joi.string().email().required(),
 	password: Joi.string().min(6).required(),
+	registrationType: Joi.string().valid("player", "team").required(),
+	position: Joi.string().when("registrationType", {
+		is: "player",
+		then: Joi.string().required(),
+		otherwise: Joi.string().optional(),
+	}),
+	teamName: Joi.string().when("registrationType", {
+		is: "team",
+		then: Joi.string().min(3).max(50).required(),
+		otherwise: Joi.string().optional(),
+	}),
 	role: Joi.string()
 		.valid("PLAYER", "TEAM_ADMIN", "LEAGUE_ADMIN", "COMPETITION_ADMIN")
 		.default("PLAYER"),
@@ -30,7 +41,10 @@ const changePasswordSchema = Joi.object({
 // Register new user
 router.post("/register", async (req, res) => {
 	try {
-		const { error, value } = registerSchema.validate(req.body);
+		// Handle both JSON and multipart form data
+		const body = req.body;
+
+		const { error, value } = registerSchema.validate(body);
 		if (error) {
 			return res.status(400).json({
 				success: false,
@@ -40,12 +54,20 @@ router.post("/register", async (req, res) => {
 			});
 		}
 
-		const { username, email, password, role } = value;
+		const {
+			gamertag,
+			email,
+			password,
+			registrationType,
+			position,
+			teamName,
+			role,
+		} = value;
 
 		// Check if user already exists
 		const existingUser = await prisma.user.findFirst({
 			where: {
-				OR: [{ email }, { username }],
+				OR: [{ email }, { username: gamertag }],
 			},
 		});
 
@@ -53,7 +75,7 @@ router.post("/register", async (req, res) => {
 			return res.status(400).json({
 				success: false,
 				error: {
-					message: "User with this email or username already exists",
+					message: "User with this email or gamertag already exists",
 				},
 			});
 		}
@@ -61,26 +83,53 @@ router.post("/register", async (req, res) => {
 		// Hash password
 		const passwordHash = await bcrypt.hash(password, 12);
 
-		// Create user and player in a transaction
+		// Handle file upload if present
+		let teamLogoUrl = null;
+		if (req.files && req.files.length > 0) {
+			const teamLogoFile = req.files.find(
+				(file) => file.fieldname === "teamLogo"
+			);
+			if (teamLogoFile) {
+				// In a real application, you would upload this to a cloud storage service
+				// For now, we'll just store a placeholder
+				teamLogoUrl = `/uploads/team-logos/${Date.now()}-${
+					teamLogoFile.originalname
+				}`;
+			}
+		}
+
+		// Create user and associated profile in a transaction
 		const result = await prisma.$transaction(async (tx) => {
 			const user = await tx.user.create({
 				data: {
-					username,
+					username: gamertag,
 					email,
 					passwordHash,
-					role,
+					role: registrationType === "team" ? "TEAM_ADMIN" : role,
 				},
 			});
 
-			// Create associated player profile
-			const player = await tx.player.create({
-				data: {
-					gamertag: username,
-					userId: user.id,
-				},
-			});
-
-			return { user, player };
+			if (registrationType === "player") {
+				// Create player profile
+				const player = await tx.player.create({
+					data: {
+						gamertag,
+						position,
+						userId: user.id,
+					},
+				});
+				return { user, player };
+			} else {
+				// Create team
+				const team = await tx.team.create({
+					data: {
+						name: teamName,
+						adminUserId: user.id,
+						logoUrl: teamLogoUrl,
+					},
+				});
+				return { user, team };
+			}
 		});
 
 		// Generate JWT token

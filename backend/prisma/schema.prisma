@@ -16,31 +16,59 @@ model User {
   email        String   @unique
   passwordHash String
   role         UserRole @default(PLAYER)
+  saplId       String?  @unique // SAPL Person ID
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   // Relations
-  players Player[]
+  players           Player[]
+  leagueAdjustments LeagueAdjustment[]
 
   @@map("users")
+}
+
+model League {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  saplId      String?  @unique // SAPL league ID
+  saplData    Json?    // Store additional SAPL data
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  teams               Team[]
+  teamSeasonAggregates TeamSeasonAggregate[]
+  matches             Match[]
+  ratingCalculations  RatingCalculation[]
+
+  @@map("leagues")
 }
 
 model Team {
   id        String   @id @default(cuid())
   name      String   @unique
+  teamId    String?  @unique // League Republic team ID
   logoUrl   String?
   saplId    String?  @unique // SAPL team ID
+  leagueId  String?  // Link to league
   saplData  Json?    // Store additional SAPL data
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  players           Player[]
-  homeMatches       Match[] @relation("HomeTeam")
-  awayMatches       Match[] @relation("AwayTeam")
-  playerMatchStats  PlayerMatchStat[]
-  playerSeasonStats PlayerSeasonStat[]
-  cupEntries        CupEntry[] // Teams participating in cups
+  league              League? @relation(fields: [leagueId], references: [id])
+  players             Player[]
+  homeMatches         Match[] @relation("HomeTeam")
+  awayMatches         Match[] @relation("AwayTeam")
+  ratingCalculations  RatingCalculation[]
+  playerMatchStats    PlayerMatchStat[]
+  playerSeasonStats   PlayerSeasonStat[]
+  cupEntries          CupEntry[] // Teams participating in cups
+  teamSeasonAggregates TeamSeasonAggregate[] // Team performance per season
+  competitions        Competition[] @relation("CompetitionTeams") // Teams participating in competitions
+  leagueAdjustments   LeagueAdjustment[] // League table adjustments
 
   @@map("teams")
 }
@@ -50,6 +78,9 @@ model Season {
   name      String
   startDate DateTime
   endDate   DateTime
+  saplId    String?  @unique // SAPL season ID
+  description String?
+  isActive  Boolean  @default(false) // Only one season can be active at a time
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -58,8 +89,64 @@ model Season {
   playerSeasonStats PlayerSeasonStat[]
   awardedBadges     AwardedBadge[]
   cups              Cup[] // Seasons can have multiple cups
+  ratingCalculations RatingCalculation[]
+  teamSeasonAggregates TeamSeasonAggregate[] // Team performance per season
+  competitions      Competition[] // Seasons can have multiple competitions
 
   @@map("seasons")
+}
+
+// New model: Team Season Aggregate for tracking team performance
+model TeamSeasonAggregate {
+  id        String   @id @default(cuid())
+  seasonId  String
+  teamId    String
+  leagueId  String?  // Link to league
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Match statistics
+  matchesPlayed    Int @default(0)
+  matchesWon       Int @default(0)
+  matchesDrawn     Int @default(0)
+  matchesLost      Int @default(0)
+  
+  // Goals statistics
+  goalsFor         Int @default(0)
+  goalsAgainst     Int @default(0)
+  goalDifference   Int @default(0)
+  
+  // Points and position
+  points           Int @default(0)
+  position         Int @default(0)
+  
+  // Clean sheets and defensive stats
+  cleanSheets      Int @default(0)
+  goalsConceded    Int @default(0)
+  
+  // Attack stats
+  shotsOnTarget    Int @default(0)
+  shotsOffTarget   Int @default(0)
+  possession       Float @default(0) // Percentage
+  
+  // Discipline
+  yellowCards      Int @default(0)
+  redCards         Int @default(0)
+  
+  // Form tracking (last 5 matches: W=3, D=1, L=0)
+  formPoints       Int @default(0)
+  formString       String @default("") // e.g., "WWDLW"
+  
+  // League-specific data
+  fixtureGroupId   String? // LeagueRepublic fixture group ID
+  
+  // Relations
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  league League? @relation(fields: [leagueId], references: [id])
+
+  @@unique([seasonId, teamId])
+  @@map("team_season_aggregates")
 }
 
 model Cup {
@@ -127,9 +214,23 @@ model Player {
   id        String   @id @default(cuid())
   gamertag  String   @unique
   realName  String?
+  firstName String?
+  lastName  String?
   position  PlayerPosition
   userId    String?
   teamId    String?
+  saplId    String?  @unique // SAPL Person ID
+  
+  // SAPL/CSV imported fields
+  teams        String?
+  activeFrom   DateTime?
+  activeTo     DateTime?
+  phone        String?
+  status       String?
+  internalRef1 String?
+  internalRef2 String?
+  source       String?
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -139,6 +240,7 @@ model Player {
   playerMatchStats  PlayerMatchStat[]
   playerSeasonStats PlayerSeasonStat[]
   awardedBadges     AwardedBadge[]
+  playerRatings     PlayerRating[]
 
   @@map("players")
 }
@@ -146,6 +248,8 @@ model Player {
 model Match {
   id              String   @id @default(cuid())
   seasonId        String
+  leagueId        String?  // Link to league
+  competitionId   String?  // Link to competition
   homeTeamId      String
   awayTeamId      String
   date            DateTime
@@ -153,19 +257,30 @@ model Match {
   awayScore       Int      @default(0)
   competitionType CompetitionType
   status          MatchStatus      @default(SCHEDULED)
+  statsLocked     Boolean          @default(false) // Lock stats from being modified
   cupId           String?          // If match is part of a cup
   cupRoundId      String?          // Which round of the cup
   matchNumber     Int?             // Match number in the cup
   isKnockout      Boolean          @default(false)
   extraTime       ExtraTimeResult?
   penalties       PenaltyResult?
+  
+  // Formation data
+  homeFormation   String?          // e.g., "4-4-2", "4-3-3"
+  awayFormation   String?          // e.g., "4-4-2", "4-3-3"
+  homeLineup      Json?            // Store home team lineup as JSON
+  awayLineup      Json?            // Store away team lineup as JSON
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   // Relations
   season          Season           @relation(fields: [seasonId], references: [id])
+  league          League?          @relation(fields: [leagueId], references: [id])
+  competition     Competition?     @relation(fields: [competitionId], references: [id])
   homeTeam        Team             @relation("HomeTeam", fields: [homeTeamId], references: [id])
   awayTeam        Team             @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  playerRatings   PlayerRating[]
   cup             Cup?             @relation(fields: [cupId], references: [id])
   cupRound        CupRound?        @relation(fields: [cupRoundId], references: [id])
   playerMatchStats PlayerMatchStat[]
@@ -189,9 +304,27 @@ model PlayerMatchStat {
   saves         Int      @default(0)
   cleanSheet    Boolean  @default(false)
   rating        Float    @default(0)
+  totwRating    Float    @default(0) // Team of the Week rating based on position
   minutesPlayed Int      @default(0)
   yellowCards   Int      @default(0)
   redCards      Int      @default(0)
+  
+  // New statistics for all positions
+  possessionLost      Int      @default(0)
+  possessionWon       Int      @default(0)
+  manOfTheMatch       Boolean  @default(false)
+  tackleSuccessRate   Float    @default(0) // Percentage of successful tackles
+  savesSuccessRate    Float    @default(0) // Percentage of successful saves (GK)
+  goalsConceded       Int      @default(0) // Goals conceded (GK)
+  
+  // Advanced statistics
+  xG                  Float    @default(0) // Expected Goals
+  totalDuelSuccess    Float    @default(0) // Total Duel Success percentage
+  playersBeatenByPass Int      @default(0) // Players beaten by pass
+  xA                  Float    @default(0) // Expected Assists
+  tacklesAttempted    Int      @default(0) // Total tackles attempted
+  
+  customStats   Json?    // Store custom stats fields as JSON
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -219,9 +352,27 @@ model PlayerSeasonStat {
   totalSaves       Int      @default(0)
   cleanSheets      Int      @default(0)
   avgRating        Float    @default(0)
+  avgTotwRating    Float    @default(0) // Average TOTW rating for the season
   matchesPlayed    Int      @default(0)
   yellowCards      Int      @default(0)
   redCards         Int      @default(0)
+  
+  // New statistics for all positions
+  totalPossessionLost    Int      @default(0)
+  totalPossessionWon     Int      @default(0)
+  manOfTheMatchCount     Int      @default(0) // Number of times player was MOTM
+  avgTackleSuccessRate   Float    @default(0) // Average tackle success rate
+  avgSavesSuccessRate    Float    @default(0) // Average saves success rate (GK)
+  totalGoalsConceded     Int      @default(0) // Total goals conceded (GK)
+  
+  // Advanced statistics
+  totalXG                Float    @default(0) // Total Expected Goals
+  avgDuelSuccess         Float    @default(0) // Average Duel Success percentage
+  totalPlayersBeatenByPass Int    @default(0) // Total players beaten by pass
+  totalXA                Float    @default(0) // Total Expected Assists
+  totalTacklesAttempted  Int      @default(0) // Total tackles attempted
+  
+  customStats      Json?    // Store custom stats fields as JSON
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -272,6 +423,64 @@ model AwardedBadge {
   @@map("awarded_badges")
 }
 
+model StatsFieldConfig {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  fieldType   StatsFieldType
+  isRequired  Boolean  @default(false)
+  isCustom    Boolean  @default(false) // true for custom fields, false for system fields
+  position    Int      @default(0) // Order in which fields should be displayed
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("stats_field_configs")
+}
+
+model Competition {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  seasonId    String
+  format      CompetitionFormat @default(LEAGUE)
+  status      CompetitionStatus @default(PLANNING)
+  maxTeams    Int?
+  minTeams    Int?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  season      Season      @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  teams       Team[]      @relation("CompetitionTeams")
+  matches     Match[]
+
+  @@map("competitions")
+}
+
+model LeagueAdjustment {
+  id         String   @id @default(cuid())
+  teamId     String
+  type       AdjustmentType
+  value      Int
+  reason     String
+  adjustedBy String
+  adjustedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  team           Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  adjustedByUser User   @relation(fields: [adjustedBy], references: [id], onDelete: Cascade)
+
+  @@map("league_adjustments")
+}
+
+
+
 enum UserRole {
   COMPETITION_ADMIN
   LEAGUE_ADMIN
@@ -280,6 +489,7 @@ enum UserRole {
 }
 
 enum PlayerPosition {
+  UNKNOWN
   GK
   CB
   LB
@@ -378,4 +588,113 @@ enum BadgeCriteria {
   MATCH_WINNER
   COMEBACK
   PERFECT_GAME
+}
+
+enum StatsFieldType {
+  INTEGER
+  FLOAT
+  BOOLEAN
+  TEXT
+  PERCENTAGE
+  RATING
+}
+
+enum CompetitionFormat {
+  LEAGUE
+  CUP
+  TOURNAMENT
+  FRIENDLY
+}
+
+enum CompetitionStatus {
+  PLANNING
+  REGISTRATION
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum AdjustmentType {
+  POINTS
+  GOAL_DIFFERENCE
+  GOALS_FOR
+  GOALS_AGAINST
+}
+
+// Rating Calculator System
+model RatingFormula {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  formula     String   // JavaScript formula string
+  position    String?  // Specific position (null = all positions)
+  color       String?  // Color code for UI
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ratingCalculations RatingCalculation[]
+
+  @@map("rating_formulas")
+}
+
+model PositionMapping {
+  id          String   @id @default(cuid())
+  position    String   // Original position (e.g., "RM")
+  formation   String   // Formation context (e.g., "4-4-2", "3-5-2")
+  mappedRole  String   // Mapped role (e.g., "WINGER", "WINGBACK")
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([position, formation])
+  @@map("position_mappings")
+}
+
+model RatingCalculation {
+  id              String   @id @default(cuid())
+  name            String   // e.g., "Team of the Week - Week 1", "Team of the Season"
+  type            String   // "WEEKLY", "SEASONAL", "CUSTOM"
+  fixtureRange    Json?    // { start: "2024-01-01", end: "2024-01-07" }
+  seasonId        String?
+  leagueId        String?
+  teamId          String?
+  formulaId       String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  formula         RatingFormula @relation(fields: [formulaId], references: [id])
+  season          Season?       @relation(fields: [seasonId], references: [id])
+  league          League?       @relation(fields: [leagueId], references: [id])
+  team            Team?         @relation(fields: [teamId], references: [id])
+  playerRatings   PlayerRating[]
+
+  @@map("rating_calculations")
+}
+
+model PlayerRating {
+  id                    String   @id @default(cuid())
+  calculationId         String
+  playerId              String
+  matchId               String?
+  position              String
+  mappedRole            String?  // After position mapping
+  baseStats             Json     // Raw stats used for calculation
+  calculatedRating      Float
+  formulaUsed           String   // The actual formula used
+  rank                  Int?     // Rank within this calculation
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  calculation           RatingCalculation @relation(fields: [calculationId], references: [id])
+  player                Player           @relation(fields: [playerId], references: [id])
+  match                 Match?           @relation(fields: [matchId], references: [id])
+
+  @@unique([calculationId, playerId, matchId])
+  @@map("player_ratings")
 }

@@ -9,8 +9,7 @@ import {
 	Shield,
 	Trophy,
 } from "lucide-react";
-import axios from "axios";
-import { API_ENDPOINTS } from "../../utils/api";
+import api from "../../utils/api";
 
 const TeamManagement = () => {
 	const { user, isTeamAdmin } = useAuth();
@@ -20,13 +19,23 @@ const TeamManagement = () => {
 	const [selectedTeam, setSelectedTeam] = useState(null);
 
 	useEffect(() => {
-		fetchTeams();
-		fetchPlayers();
+		const fetchData = async () => {
+			setLoading(true);
+			try {
+				await Promise.all([fetchTeams(), fetchPlayers()]);
+			} catch (error) {
+				console.error("Error fetching data:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchData();
 	}, []);
 
 	const fetchTeams = async () => {
 		try {
-			const response = await axios.get(API_ENDPOINTS.TEAMS);
+			const response = await api.get("/teams");
+			console.log("Teams API response:", response.data);
 			setTeams(response.data.data || []);
 		} catch (error) {
 			console.error("Error fetching teams:", error);
@@ -36,7 +45,7 @@ const TeamManagement = () => {
 
 	const fetchPlayers = async () => {
 		try {
-			const response = await axios.get(API_ENDPOINTS.PLAYERS);
+			const response = await api.get("/players");
 			setPlayers(response.data.data || []);
 		} catch (error) {
 			console.error("Error fetching players:", error);
@@ -76,6 +85,9 @@ const TeamManagement = () => {
 		);
 	}
 
+	console.log("Teams state:", teams);
+	console.log("Teams length:", teams.length);
+
 	return (
 		<div className="space-y-6">
 			{/* Page Header */}
@@ -108,11 +120,15 @@ const TeamManagement = () => {
 					className="input-field"
 				>
 					<option value="">Choose a team...</option>
-					{teams.map((team) => (
-						<option key={team.id} value={team.id}>
-							{team.name}
-						</option>
-					))}
+					{teams.length === 0 ? (
+						<option disabled>No teams available</option>
+					) : (
+						teams.map((team) => (
+							<option key={team.id} value={team.id}>
+								{team.name}
+							</option>
+						))
+					)}
 				</select>
 			</div>
 

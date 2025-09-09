@@ -143,38 +143,9 @@ router.get("/:id", async (req, res) => {
 		const match = await prisma.match.findUnique({
 			where: { id },
 			include: {
-				homeTeam: {
-					select: {
-						id: true,
-						name: true,
-						logoUrl: true,
-					},
-				},
-				awayTeam: {
-					select: {
-						id: true,
-						name: true,
-						logoUrl: true,
-					},
-				},
-				season: {
-					select: {
-						id: true,
-						name: true,
-					},
-				},
-				playerMatchStats: {
-					include: {
-						player: {
-							select: {
-								id: true,
-								gamertag: true,
-								realName: true,
-								position: true,
-							},
-						},
-					},
-				},
+				homeTeam: true,
+				awayTeam: true,
+				season: true,
 			},
 		});
 
@@ -306,28 +277,55 @@ router.put(
 			const { id } = req.params;
 			const { homeScore, awayScore, status } = req.body;
 
+			console.log("Updating match scores:", {
+				id,
+				homeScore,
+				awayScore,
+				status,
+				homeScoreType: typeof homeScore,
+				awayScoreType: typeof awayScore,
+			});
+
 			// Validate scores
-			if (
-				typeof homeScore !== "number" ||
-				typeof awayScore !== "number" ||
-				homeScore < 0 ||
-				awayScore < 0
-			) {
+			if (homeScore === undefined || awayScore === undefined) {
 				return res.status(400).json({
 					success: false,
-					error: {
-						message: "Invalid scores provided",
-					},
+					error: { message: "Home score and away score are required" },
 				});
 			}
 
-			const match = await prisma.match.update({
+			// Prepare update data
+			const updateData = {
+				homeScore: parseInt(homeScore),
+				awayScore: parseInt(awayScore),
+				status: status || "COMPLETED", // Use provided status or default to COMPLETED
+			};
+
+			// Set extra time and penalty results based on status
+			if (status === "EXTRA_TIME") {
+				const homeScoreNum = parseInt(homeScore);
+				const awayScoreNum = parseInt(awayScore);
+				if (homeScoreNum > awayScoreNum) {
+					updateData.extraTime = "HOME_WIN";
+				} else if (awayScoreNum > homeScoreNum) {
+					updateData.extraTime = "AWAY_WIN";
+				} else {
+					updateData.extraTime = "DRAW";
+				}
+			} else if (status === "PENALTIES") {
+				const homeScoreNum = parseInt(homeScore);
+				const awayScoreNum = parseInt(awayScore);
+				if (homeScoreNum > awayScoreNum) {
+					updateData.penalties = "HOME_WIN";
+				} else {
+					updateData.penalties = "AWAY_WIN";
+				}
+			}
+
+			// Update match
+			const updatedMatch = await prisma.match.update({
 				where: { id },
-				data: {
-					homeScore,
-					awayScore,
-					status: status || "COMPLETED",
-				},
+				data: updateData,
 				include: {
 					homeTeam: {
 						select: {
@@ -352,9 +350,16 @@ router.put(
 				},
 			});
 
+			console.log("Match updated successfully:", {
+				id: updatedMatch.id,
+				homeScore: updatedMatch.homeScore,
+				awayScore: updatedMatch.awayScore,
+				status: updatedMatch.status,
+			});
+
 			res.json({
 				success: true,
-				data: match,
+				data: updatedMatch,
 				message: "Match scores updated successfully",
 			});
 		} catch (error) {
@@ -368,6 +373,141 @@ router.put(
 		}
 	}
 );
+
+router.put("/:id", authenticateToken, requireTeamAdmin, async (req, res) => {
+	try {
+		const { id } = req.params;
+		const {
+			homeLineup,
+			awayLineup,
+			homeStats,
+			awayStats,
+			homeFormation,
+			awayFormation,
+			homeScore,
+			awayScore,
+			status,
+		} = req.body;
+
+		// Check if match exists
+		const existingMatch = await prisma.match.findUnique({
+			where: { id },
+			include: {
+				homeTeam: {
+					include: {
+						players: true,
+					},
+				},
+				awayTeam: {
+					include: {
+						players: true,
+					},
+				},
+			},
+		});
+
+		if (!existingMatch) {
+			return res.status(404).json({
+				success: false,
+				error: {
+					message: "Match not found",
+				},
+			});
+		}
+
+		// Update match basic info
+		const matchUpdateData = {};
+		if (homeScore !== undefined) matchUpdateData.homeScore = homeScore;
+		if (awayScore !== undefined) matchUpdateData.awayScore = awayScore;
+		if (status) matchUpdateData.status = status;
+		if (homeFormation) matchUpdateData.homeFormation = homeFormation;
+		if (awayFormation) matchUpdateData.awayFormation = awayFormation;
+
+		// Update match
+		const updatedMatch = await prisma.match.update({
+			where: { id },
+			data: matchUpdateData,
+			include: {
+				homeTeam: {
+					select: {
+						id: true,
+						name: true,
+						logoUrl: true,
+					},
+				},
+				awayTeam: {
+					select: {
+						id: true,
+						name: true,
+						logoUrl: true,
+					},
+				},
+				season: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
+		});
+
+		// Process player stats if provided
+		if (homeStats || awayStats) {
+			// Delete existing stats for this match
+			await prisma.playerMatchStat.deleteMany({
+				where: { matchId: id },
+			});
+
+			// Create new stats
+			const statsToCreate = [];
+
+			// Process home team stats
+			if (homeStats) {
+				for (const [playerId, stats] of Object.entries(homeStats)) {
+					statsToCreate.push({
+						matchId: id,
+						playerId,
+						teamId: existingMatch.homeTeamId,
+						...stats,
+					});
+				}
+			}
+
+			// Process away team stats
+			if (awayStats) {
+				for (const [playerId, stats] of Object.entries(awayStats)) {
+					statsToCreate.push({
+						matchId: id,
+						playerId,
+						teamId: existingMatch.awayTeamId,
+						...stats,
+					});
+				}
+			}
+
+			// Create all stats in batch
+			if (statsToCreate.length > 0) {
+				await prisma.playerMatchStat.createMany({
+					data: statsToCreate,
+				});
+			}
+		}
+
+		res.json({
+			success: true,
+			data: updatedMatch,
+			message: "Match updated successfully",
+		});
+	} catch (error) {
+		console.error("Error updating match:", error);
+		res.status(500).json({
+			success: false,
+			error: {
+				message: "Failed to update match",
+			},
+		});
+	}
+});
 
 // Delete a match (League Admin and above)
 router.delete(
@@ -407,5 +547,58 @@ router.delete(
 		}
 	}
 );
+
+// Get player stats for a specific match
+router.get("/:id/player-stats", async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		// Check if match exists
+		const match = await prisma.match.findUnique({ where: { id } });
+		if (!match) {
+			return res.status(404).json({
+				success: false,
+				error: {
+					message: "Match not found",
+				},
+			});
+		}
+
+		// Get player match stats for this match
+		const playerStats = await prisma.playerMatchStat.findMany({
+			where: { matchId: id },
+			include: {
+				player: {
+					select: {
+						id: true,
+						gamertag: true,
+						realName: true,
+						position: true,
+					},
+				},
+				team: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
+			orderBy: [{ player: { position: "asc" } }, { rating: "desc" }],
+		});
+
+		res.json({
+			success: true,
+			data: playerStats,
+		});
+	} catch (error) {
+		console.error("Error fetching player stats:", error);
+		res.status(500).json({
+			success: false,
+			error: {
+				message: "Failed to fetch player stats",
+			},
+		});
+	}
+});
 
 module.exports = router;

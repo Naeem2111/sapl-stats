@@ -12,8 +12,7 @@ import {
 	Search,
 	BarChart3,
 } from "lucide-react";
-import axios from "axios";
-import { API_ENDPOINTS } from "../../utils/api";
+import api from "../../utils/api";
 
 const CupManagement = () => {
 	const { user, isCompetitionAdmin, isLeagueAdmin } = useAuth();
@@ -46,7 +45,7 @@ const CupManagement = () => {
 			if (selectedStatus !== "all") params.append("status", selectedStatus);
 			if (selectedFormat !== "all") params.append("format", selectedFormat);
 
-			const response = await axios.get(`${API_ENDPOINTS.CUPS}?${params}`, {
+			const response = await api.get(`/cups?${params}`, {
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
@@ -62,7 +61,7 @@ const CupManagement = () => {
 
 	const fetchSeasons = async () => {
 		try {
-			const response = await axios.get(API_ENDPOINTS.SEASONS);
+			const response = await api.get("/seasons");
 			setSeasons(response.data.data || []);
 		} catch (error) {
 			console.error("Error fetching seasons:", error);
@@ -79,7 +78,7 @@ const CupManagement = () => {
 		}
 
 		try {
-			await axios.delete(`${API_ENDPOINTS.CUPS}/${cupId}`, {
+			await api.delete(`/cups/${cupId}`, {
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
@@ -419,4 +418,3 @@ const CupManagement = () => {
 };
 
 export default CupManagement;
-

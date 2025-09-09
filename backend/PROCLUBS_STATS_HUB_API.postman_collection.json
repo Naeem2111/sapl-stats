@@ -1,0 +1,1067 @@
+{
+	"info": {
+		"_postman_id": "proclubs-stats-hub-api",
+		"name": "ProClubs Stats Hub API",
+		"description": "Complete API collection for ProClubs Stats Hub backend services",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"PLAYER\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "profile"]
+						}
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/change-password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "change-password"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users Management",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users?role=all&search=&page=1&limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"],
+							"query": [
+								{
+									"key": "role",
+									"value": "all"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"updatedusername\",\n  \"email\": \"updated@example.com\",\n  \"role\": \"TEAM_ADMIN\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Teams Management",
+			"item": [
+				{
+					"name": "Get All Teams",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/teams",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams"]
+						}
+					}
+				},
+				{
+					"name": "Get Team by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/teams/{{team_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams", "{{team_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Team",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Team\",\n  \"logoUrl\": \"https://example.com/logo.png\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/teams",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams"]
+						}
+					}
+				},
+				{
+					"name": "Update Team",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Team Name\",\n  \"logoUrl\": \"https://example.com/newlogo.png\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/teams/{{team_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams", "{{team_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Team",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/teams/{{team_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "teams", "{{team_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Matches Management",
+			"item": [
+				{
+					"name": "Get All Matches",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/matches?season=all&team=all&days=all&status=all&competitionType=all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches"],
+							"query": [
+								{
+									"key": "season",
+									"value": "all"
+								},
+								{
+									"key": "team",
+									"value": "all"
+								},
+								{
+									"key": "days",
+									"value": "all"
+								},
+								{
+									"key": "status",
+									"value": "all"
+								},
+								{
+									"key": "competitionType",
+									"value": "all"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Match by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/matches/{{match_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", "{{match_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Match",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"homeTeamId\": \"{{home_team_id}}\",\n  \"awayTeamId\": \"{{away_team_id}}\",\n  \"seasonId\": \"{{season_id}}\",\n  \"date\": \"2024-01-15T19:00:00Z\",\n  \"competitionType\": \"LEAGUE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/matches",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches"]
+						}
+					}
+				},
+				{
+					"name": "Update Match",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"homeScore\": 2,\n  \"awayScore\": 1,\n  \"status\": \"COMPLETED\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/matches/{{match_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", "{{match_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Match",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/matches/{{match_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matches", "{{match_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Statistics",
+			"item": [
+				{
+					"name": "Get All Leagues",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/stats/leagues",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "leagues"]
+						}
+					}
+				},
+				{
+					"name": "Get Teams by League",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/stats/teams?leagueId={{league_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "teams"],
+							"query": [
+								{
+									"key": "leagueId",
+									"value": "{{league_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Player Statistics",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/stats/players?leagueId={{league_id}}&position=all&teamId=all&seasonId=all&limit=20&page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "players"],
+							"query": [
+								{
+									"key": "leagueId",
+									"value": "{{league_id}}"
+								},
+								{
+									"key": "position",
+									"value": "all"
+								},
+								{
+									"key": "teamId",
+									"value": "all"
+								},
+								{
+									"key": "seasonId",
+									"value": "all"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Team Statistics",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/stats/teams-stats?leagueId={{league_id}}&seasonId=all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "teams-stats"],
+							"query": [
+								{
+									"key": "leagueId",
+									"value": "{{league_id}}"
+								},
+								{
+									"key": "seasonId",
+									"value": "all"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Top Performers",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/stats/top-performers?leagueId={{league_id}}&seasonId=all&position=all&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats", "top-performers"],
+							"query": [
+								{
+									"key": "leagueId",
+									"value": "{{league_id}}"
+								},
+								{
+									"key": "seasonId",
+									"value": "all"
+								},
+								{
+									"key": "position",
+									"value": "all"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Seasons Management",
+			"item": [
+				{
+					"name": "Get All Seasons",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/seasons",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons"]
+						}
+					}
+				},
+				{
+					"name": "Get Season by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/seasons/{{season_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", "{{season_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Season",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Season 2024\",\n  \"startDate\": \"2024-01-01T00:00:00Z\",\n  \"endDate\": \"2024-12-31T23:59:59Z\",\n  \"description\": \"2024 Season\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/seasons",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons"]
+						}
+					}
+				},
+				{
+					"name": "Update Season",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Season 2024\",\n  \"startDate\": \"2024-01-01T00:00:00Z\",\n  \"endDate\": \"2024-12-31T23:59:59Z\",\n  \"description\": \"Updated 2024 Season\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/seasons/{{season_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", "{{season_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Season",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/seasons/{{season_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "seasons", "{{season_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Badges System",
+			"item": [
+				{
+					"name": "Get All Badges",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/badges",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges"]
+						}
+					}
+				},
+				{
+					"name": "Get Badges by Category",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/badges/category/{{category}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges", "category", "{{category}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Player's Awarded Badges",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/badges/player/{{player_id}}?season=all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges", "player", "{{player_id}}"],
+							"query": [
+								{
+									"key": "season",
+									"value": "all"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Award Badge to Player",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"playerId\": \"{{player_id}}\",\n  \"badgeId\": \"{{badge_id}}\",\n  \"seasonId\": \"{{season_id}}\",\n  \"matchId\": \"{{match_id}}\",\n  \"reason\": \"Outstanding performance\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/badges/award",
+							"host": ["{{base_url}}"],
+							"path": ["api", "badges", "award"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Competitions Management",
+			"item": [
+				{
+					"name": "Get Competitions Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/competitions/overview",
+							"host": ["{{base_url}}"],
+							"path": ["api", "competitions", "overview"]
+						}
+					}
+				},
+				{
+					"name": "Get Competition Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/competitions/{{competition_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "competitions", "{{competition_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Competition",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Competition\",\n  \"startDate\": \"2024-01-01T00:00:00Z\",\n  \"endDate\": \"2024-12-31T23:59:59Z\",\n  \"description\": \"Competition description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/competitions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "competitions"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cups Management",
+			"item": [
+				{
+					"name": "Get All Cups",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/cups?season=all&status=all&format=all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cups"],
+							"query": [
+								{
+									"key": "season",
+									"value": "all"
+								},
+								{
+									"key": "status",
+									"value": "all"
+								},
+								{
+									"key": "format",
+									"value": "all"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Cup by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/cups/{{cup_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cups", "{{cup_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Cup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Cup\",\n  \"seasonId\": \"{{season_id}}\",\n  \"format\": \"KNOCKOUT\",\n  \"startDate\": \"2024-01-01T00:00:00Z\",\n  \"endDate\": \"2024-12-31T23:59:59Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/cups",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cups"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin Functions",
+			"item": [
+				{
+					"name": "Get System Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/system-overview",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "system-overview"]
+						}
+					}
+				},
+				{
+					"name": "Get User Activity",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/user-activity?days=30",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "user-activity"],
+							"query": [
+								{
+									"key": "days",
+									"value": "30"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get System Logs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/system-logs?level=all&limit=100",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "system-logs"],
+							"query": [
+								{
+									"key": "level",
+									"value": "all"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "SAPL Integration",
+			"item": [
+				{
+					"name": "Test SAPL Connection",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/sapl/test-connection",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sapl", "test-connection"]
+						}
+					}
+				},
+				{
+					"name": "Get SAPL Teams",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/sapl/teams",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sapl", "teams"]
+						}
+					}
+				},
+				{
+					"name": "Sync SAPL Teams",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{base_url}}/api/sapl/sync-teams",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sapl", "sync-teams"]
+						}
+					}
+				},
+				{
+					"name": "Get SAPL Seasons",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/sapl/seasons",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sapl", "seasons"]
+						}
+					}
+				},
+				{
+					"name": "Get SAPL Fixtures",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/sapl/fixtures/season-28",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sapl", "fixtures", "season-28"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "System Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "team_id",
+			"value": "",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "match_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "season_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "league_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "player_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "badge_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "competition_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cup_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "category",
+			"value": "GOALS",
+			"type": "string"
+		}
+	]
+}

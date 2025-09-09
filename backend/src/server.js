@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
+const multer = require("multer");
 
 // Import routes
 const authRoutes = require("./routes/auth");
@@ -16,6 +17,13 @@ const competitionRoutes = require("./routes/competitions");
 const adminRoutes = require("./routes/admin");
 const saplRoutes = require("./routes/sapl");
 const cupRoutes = require("./routes/cups");
+const playerPositionRoutes = require("./routes/playerPositions");
+const playerStatsRoutes = require("./routes/playerStats");
+const statsFieldsRoutes = require("./routes/statsFields");
+const leagueRoutes = require("./routes/leagues");
+const ocrRoutes = require("./routes/ocr");
+const competitionManagementRoutes = require("./routes/competitionManagement");
+const ratingCalculatorRoutes = require("./routes/ratingCalculator");
 
 // Import middleware
 const { errorHandler } = require("./middleware/errorHandler");
@@ -29,7 +37,11 @@ app.use(helmet());
 // CORS configuration
 const corsOrigins =
 	process.env.NODE_ENV === "production"
-		? [process.env.CORS_ORIGIN || "https://your-frontend-domain.vercel.app"]
+		? [
+				process.env.CORS_ORIGIN || "https://your-frontend-domain.vercel.app",
+				// Add additional production domains if needed
+				process.env.CORS_ORIGIN_ALT,
+		  ].filter(Boolean)
 		: ["http://localhost:3001", "http://127.0.0.1:3001"];
 
 app.use(
@@ -46,9 +58,26 @@ app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// Multer configuration for file uploads
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: {
+		fileSize: 5 * 1024 * 1024, // 5MB limit
+	},
+});
+
+// Apply multer middleware to auth routes for file uploads
+app.use("/api/auth", upload.any());
+
 // Request logging middleware
 app.use((req, res, next) => {
-	console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+	const timestamp = new Date().toISOString();
+	const method = req.method;
+	const path = req.path;
+	const userAgent = req.get("User-Agent") || "Unknown";
+	const ip = req.ip || req.connection.remoteAddress;
+
+	console.log(`${timestamp} - ${method} ${path} - ${ip} - ${userAgent}`);
 	next();
 });
 
@@ -74,6 +103,13 @@ app.use("/api/competitions", competitionRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/sapl", saplRoutes);
 app.use("/api/cups", cupRoutes);
+app.use("/api/player-positions", playerPositionRoutes);
+app.use("/api/player-stats", playerStatsRoutes);
+app.use("/api/stats-fields", statsFieldsRoutes);
+app.use("/api/leagues", leagueRoutes);
+app.use("/api/ocr", ocrRoutes);
+app.use("/api/competition-management", competitionManagementRoutes);
+app.use("/api/rating-calculator", ratingCalculatorRoutes);
 
 // Error handling middleware
 app.use(notFound);

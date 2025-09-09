@@ -10,17 +10,19 @@ import {
 	Search,
 	Filter,
 	BarChart3,
+	Building,
 } from "lucide-react";
-import axios from "axios";
-import { API_ENDPOINTS } from "../../utils/api";
+import api from "../../utils/api";
 
 const Players = () => {
 	const { user, isTeamAdmin, isLeagueAdmin } = useAuth();
 	const [players, setPlayers] = useState([]);
 	const [teams, setTeams] = useState([]);
+	const [leagues, setLeagues] = useState([]);
 	const [seasons, setSeasons] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState("");
+	const [selectedLeague, setSelectedLeague] = useState("all");
 	const [selectedTeam, setSelectedTeam] = useState("all");
 	const [selectedSeason, setSelectedSeason] = useState("all");
 	const [selectedPosition, setSelectedPosition] = useState("all");
@@ -29,17 +31,26 @@ const Players = () => {
 		fetchData();
 	}, []);
 
+	useEffect(() => {
+		// Reset team selection when league changes
+		if (selectedLeague !== "all") {
+			setSelectedTeam("all");
+		}
+	}, [selectedLeague]);
+
 	const fetchData = async () => {
 		try {
 			setLoading(true);
-			const [playersRes, teamsRes, seasonsRes] = await Promise.all([
-				axios.get(API_ENDPOINTS.PLAYERS),
-				axios.get(API_ENDPOINTS.TEAMS),
-				axios.get(API_ENDPOINTS.SEASONS),
+			const [playersRes, teamsRes, leaguesRes, seasonsRes] = await Promise.all([
+				api.get("/players"),
+				api.get("/stats/teams"),
+				api.get("/stats/leagues"),
+				api.get("/seasons"),
 			]);
 
 			setPlayers(playersRes.data.data || []);
 			setTeams(teamsRes.data.data || []);
+			setLeagues(leaguesRes.data.data || []);
 			setSeasons(seasonsRes.data.data || []);
 		} catch (error) {
 			console.error("Error fetching data:", error);
@@ -48,16 +59,35 @@ const Players = () => {
 		}
 	};
 
+	const getFilteredTeams = () => {
+		if (selectedLeague === "all") return teams;
+		return teams.filter((team) => team.leagueId === selectedLeague);
+	};
+
 	const filteredPlayers = players.filter((player) => {
 		const matchesSearch =
 			player.gamertag?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			player.realName?.toLowerCase().includes(searchTerm.toLowerCase());
+			player.realName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			player.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			player.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			`${player.firstName || ""} ${player.lastName || ""}`
+				.toLowerCase()
+				.includes(searchTerm.toLowerCase());
+
 		const matchesTeam =
-			selectedTeam === "all" || player.teamId === selectedTeam;
+			selectedTeam === "all" ||
+			player.teamId === selectedTeam ||
+			(selectedTeam === "unassigned" && !player.teamId);
+
 		const matchesPosition =
 			selectedPosition === "all" || player.position === selectedPosition;
 
-		return matchesSearch && matchesTeam && matchesPosition;
+		// Filter by league through team
+		const matchesLeague =
+			selectedLeague === "all" ||
+			(player.team && player.team.leagueId === selectedLeague);
+
+		return matchesSearch && matchesTeam && matchesPosition && matchesLeague;
 	});
 
 	const getPositionColor = (position) => {
@@ -77,6 +107,19 @@ const Players = () => {
 			CF: "bg-purple-100 text-purple-800",
 		};
 		return colors[position] || "bg-gray-100 text-gray-800";
+	};
+
+	const getLeagueColor = (leagueName) => {
+		const colors = {
+			"SL Prem": "bg-yellow-100 text-yellow-800",
+			"SL Champs": "bg-blue-100 text-blue-800",
+			"Super League 1 West": "bg-green-100 text-green-800",
+			"Super League 1 East": "bg-green-100 text-green-800",
+			"Super League Conference": "bg-purple-100 text-purple-800",
+			Premiership: "bg-red-100 text-red-800",
+			Championship: "bg-indigo-100 text-indigo-800",
+		};
+		return colors[leagueName] || "bg-gray-100 text-gray-800";
 	};
 
 	const formatDate = (dateString) => {
@@ -102,7 +145,7 @@ const Players = () => {
 				<div>
 					<h2 className="text-2xl font-bold text-gray-900">Players</h2>
 					<p className="mt-1 text-sm text-gray-500">
-						View and manage all players in the league
+						View and manage all players across all leagues
 					</p>
 				</div>
 				<div className="mt-4 sm:mt-0">
@@ -113,9 +156,9 @@ const Players = () => {
 				</div>
 			</div>
 
-			{/* Filters */}
+			{/* Enhanced Filters */}
 			<div className="card">
-				<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 					{/* Search */}
 					<div className="relative">
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -128,16 +171,32 @@ const Players = () => {
 						/>
 					</div>
 
+					{/* League Filter */}
+					<select
+						value={selectedLeague}
+						onChange={(e) => setSelectedLeague(e.target.value)}
+						className="input-field"
+					>
+						<option value="all">All Leagues</option>
+						{leagues.map((league) => (
+							<option key={league.id} value={league.id}>
+								{league.name} ({league.teamCount || 0} teams)
+							</option>
+						))}
+					</select>
+
 					{/* Team Filter */}
 					<select
 						value={selectedTeam}
 						onChange={(e) => setSelectedTeam(e.target.value)}
 						className="input-field"
+						disabled={getFilteredTeams().length === 0}
 					>
 						<option value="all">All Teams</option>
-						{teams.map((team) => (
+						<option value="unassigned">Unassigned Players</option>
+						{getFilteredTeams().map((team) => (
 							<option key={team.id} value={team.id}>
-								{team.name}
+								{team.name} ({team.playerCount || 0} players)
 							</option>
 						))}
 					</select>
@@ -178,6 +237,35 @@ const Players = () => {
 						))}
 					</select>
 				</div>
+
+				{/* Filter Summary */}
+				<div className="mt-4 pt-4 border-t border-gray-200">
+					<div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+						<span className="font-medium">Active Filters:</span>
+						{selectedLeague !== "all" && (
+							<span className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs">
+								<Building className="h-3 w-3 mr-1" />
+								{leagues.find((l) => l.id === selectedLeague)?.name}
+							</span>
+						)}
+						{selectedTeam !== "all" && (
+							<span className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
+								<Building className="h-3 w-3 mr-1" />
+								{teams.find((t) => t.id === selectedTeam)?.name}
+							</span>
+						)}
+						{selectedPosition !== "all" && (
+							<span className="inline-flex items-center px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
+								{selectedPosition}
+							</span>
+						)}
+						{searchTerm && (
+							<span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs">
+								<Search className="h-3 w-3 mr-1" />"{searchTerm}"
+							</span>
+						)}
+					</div>
+				</div>
 			</div>
 
 			{/* Players Grid */}
@@ -214,9 +302,22 @@ const Players = () => {
 
 							{/* Team Info */}
 							{player.team ? (
-								<div className="flex items-center justify-center text-sm text-gray-600 mb-3">
-									<Users className="h-4 w-4 mr-2" />
-									<span>{player.team.name}</span>
+								<div className="space-y-2 mb-3">
+									<div className="flex items-center justify-center text-sm text-gray-600">
+										<Users className="h-4 w-4 mr-2" />
+										<span>{player.team.name}</span>
+									</div>
+									{/* League Badge */}
+									{player.team.league && (
+										<span
+											className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getLeagueColor(
+												player.team.league.name
+											)}`}
+										>
+											<Building className="h-3 w-3 mr-1" />
+											{player.team.league.name}
+										</span>
+									)}
 								</div>
 							) : (
 								<div className="text-sm text-gray-400 mb-3">Free Agent</div>
@@ -251,12 +352,50 @@ const Players = () => {
 					<p className="mt-1 text-sm text-gray-500">
 						Try adjusting your search criteria or filters.
 					</p>
+					{/* Show current filter state */}
+					<div className="mt-4 text-xs text-gray-400">
+						{selectedLeague !== "all" && (
+							<p>
+								League: {leagues.find((l) => l.id === selectedLeague)?.name}
+							</p>
+						)}
+						{selectedTeam !== "all" && (
+							<p>Team: {teams.find((t) => t.id === selectedTeam)?.name}</p>
+						)}
+						{selectedPosition !== "all" && <p>Position: {selectedPosition}</p>}
+						{searchTerm && <p>Search: "{searchTerm}"</p>}
+					</div>
 				</div>
 			)}
 
-			{/* Results Count */}
-			<div className="text-sm text-gray-500 text-center">
-				Showing {filteredPlayers.length} of {players.length} players
+			{/* Results Count and Summary */}
+			<div className="text-center space-y-2">
+				<div className="text-sm text-gray-500">
+					Showing {filteredPlayers.length} of {players.length} players
+				</div>
+				{/* League Distribution */}
+				{selectedLeague === "all" && (
+					<div className="flex flex-wrap justify-center gap-2">
+						{leagues.map((league) => {
+							const leaguePlayerCount = players.filter(
+								(p) => p.team && p.team.leagueId === league.id
+							).length;
+							if (leaguePlayerCount === 0) return null;
+
+							return (
+								<span
+									key={league.id}
+									className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getLeagueColor(
+										league.name
+									)}`}
+								>
+									<Building className="h-3 w-3 mr-1" />
+									{league.name}: {leaguePlayerCount}
+								</span>
+							);
+						})}
+					</div>
+				)}
 			</div>
 		</div>
 	);

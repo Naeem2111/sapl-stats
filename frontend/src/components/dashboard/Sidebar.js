@@ -11,10 +11,13 @@ import {
 	Shield,
 	X,
 	Menu,
+	Camera,
+	Cog,
+	Calculator,
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, onClose, user, onLogout }) => {
-	const { isTeamAdmin, isLeagueAdmin } = useAuth();
+	const { isTeamAdmin, isLeagueAdmin, isCompetitionAdmin } = useAuth();
 	const location = useLocation();
 
 	console.log("Sidebar rendering:", {
@@ -49,6 +52,18 @@ const Sidebar = ({ isOpen, onClose, user, onLogout }) => {
 			icon: BarChart3,
 			current: location.pathname.includes("/player-stats"),
 		},
+		{
+			name: "OCR Trainer",
+			href: "/dashboard/ocr-trainer",
+			icon: Camera,
+			current: location.pathname.includes("/ocr-trainer"),
+		},
+		{
+			name: "Rating Calculator",
+			href: "/dashboard/rating-calculator",
+			icon: Calculator,
+			current: location.pathname.includes("/rating-calculator"),
+		},
 		...(isLeagueAdmin()
 			? [
 					{
@@ -62,6 +77,22 @@ const Sidebar = ({ isOpen, onClose, user, onLogout }) => {
 						href: "/dashboard/competition",
 						icon: Trophy,
 						current: location.pathname.includes("/competition"),
+					},
+					{
+						name: "Competition Management",
+						href: "/dashboard/competition-management",
+						icon: Cog,
+						current: location.pathname.includes("/competition-management"),
+					},
+			  ]
+			: []),
+		...(isCompetitionAdmin()
+			? [
+					{
+						name: "Season Management",
+						href: "/dashboard/season-management",
+						icon: Calendar,
+						current: location.pathname.includes("/season-management"),
 					},
 			  ]
 			: []),

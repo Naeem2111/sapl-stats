@@ -51,6 +51,48 @@ npm start
 
 The frontend will run on `http://localhost:3001`
 
+### **3. Import League Data (Optional)**
+
+To import teams, fixtures, and all data from LeagueRepublic API:
+
+#### **Interactive Import (Recommended)**
+
+```bash
+cd backend
+npm run import:leaguerepublic
+```
+
+This will prompt you to select which season to import.
+
+#### **Direct Season Import**
+
+```bash
+# Import specific seasons
+npm run import:season28    # Import Season 28
+npm run import:season27    # Import Season 27
+npm run import:season26    # Import Season 26
+
+# Or use command line arguments
+npm run import:leaguerepublic -- --season=28
+npm run import:leaguerepublic -- --season=27
+npm run import:leaguerepublic -- --season=26
+```
+
+#### **What Gets Imported**
+
+- All teams from 7 divisions/leagues
+- Complete fixture schedule for selected season
+- Current standings and results
+- Season configuration and metadata
+
+#### **Available Seasons**
+
+- **Season 28** (2024) - Current season
+- **Season 27** (2023) - Previous season
+- **Season 26** (2022) - Historical season
+
+See `backend/LEAGUEREPUBLIC_IMPORT_GUIDE.md` for detailed instructions.
+
 ## 🔐 Test Credentials
 
 **Team Admin:**
