@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import PositionSelection from "./components/auth/PositionSelection";
 import PublicStats from "./components/public/PublicStats";
 import Register from "./components/public/Register";
+import HomePage from "./components/public/HomePage";
 import "./index.css";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
 			<Router>
 				<div className="min-h-screen bg-gray-50">
 					<Routes>
+						<Route path="/" element={<HomePage />} />
 						<Route path="/stats" element={<PublicStats />} />
 						<Route path="/register" element={<Register />} />
 						<Route path="/login" element={<Login />} />
@@ -39,7 +41,6 @@ function App() {
 								</ProtectedRoute>
 							}
 						/>
-						<Route path="/" element={<Navigate to="/stats" replace />} />
 					</Routes>
 				</div>
 			</Router>

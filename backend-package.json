@@ -23,9 +23,7 @@
 		"db:reset": "prisma migrate reset --force",
 		"db:push": "prisma db push",
 		"build": "npm run db:generate",
-		"postinstall": "npm run db:generate",
-		"setup:production": "node setup-production.js",
-		"setup:full": "npm run db:migrate:deploy && npm run setup:production"
+		"postinstall": "npm run db:generate"
 	},
 	"dependencies": {
 		"@prisma/client": "^5.6.0",
@@ -57,18 +55,9 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Naeem2111/sapl-stats-backend.git"
+		"url": "https://github.com/yourusername/proclubs-stats-hub-backend.git"
 	},
-	"keywords": [
-		"proclubs",
-		"fifa",
-		"fc26",
-		"stats",
-		"api",
-		"express",
-		"prisma",
-		"sapl"
-	],
-	"author": "Naeem",
+	"keywords": ["proclubs", "fifa", "fc26", "stats", "api", "express", "prisma"],
+	"author": "Your Name",
 	"license": "MIT"
 }

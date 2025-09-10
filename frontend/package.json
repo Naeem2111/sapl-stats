@@ -1,49 +1,65 @@
 {
-  "name": "proclubs-stats-hub-frontend",
-  "version": "1.0.0",
-  "description": "Frontend UI for FC 26 Pro Clubs league statistics system",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "axios": "^1.11.0",
-    "clsx": "^1.2.1",
-    "date-fns": "^2.30.0",
-    "lucide-react": "^0.263.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.1",
-    "tailwind-merge": "^1.14.0"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.24",
-    "tailwindcss": "^3.3.0"
-  }
+	"name": "proclubs-stats-hub-frontend",
+	"version": "1.0.0",
+	"description": "Frontend UI for FC 26 Pro Clubs league statistics system",
+	"private": true,
+	"dependencies": {
+		"@testing-library/jest-dom": "^5.16.4",
+		"@testing-library/react": "^13.3.0",
+		"@testing-library/user-event": "^13.5.0",
+		"axios": "^1.11.0",
+		"clsx": "^1.2.1",
+		"date-fns": "^2.30.0",
+		"lucide-react": "^0.263.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^6.3.0",
+		"react-scripts": "5.0.1",
+		"tailwind-merge": "^1.14.0"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"autoprefixer": "^10.4.14",
+		"postcss": "^8.4.24",
+		"tailwindcss": "^3.3.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Naeem2111/sapl-stats-frontend.git"
+	},
+	"keywords": [
+		"proclubs",
+		"fifa",
+		"fc26",
+		"stats",
+		"react",
+		"frontend",
+		"ui",
+		"sapl"
+	],
+	"author": "Naeem",
+	"license": "MIT"
 }

@@ -1,324 +1,221 @@
-# Pro Clubs Stats Hub - Backend
+# SAPL Stats Backend API
 
-A comprehensive backend API for managing FC 26 Pro Clubs league statistics, built with Node.js, Express, and PostgreSQL.
-
-## 🚀 Features
-
-- **User Management**: Registration, authentication, and role-based access control
-- **Team Management**: Create, update, and manage teams with player assignments
-- **Player Statistics**: Track individual and team performance metrics
-- **Match Management**: Record match results and player performance
-- **Season Management**: Organize competitions into seasons
-- **Advanced Analytics**: Leaderboards, comparisons, and statistical insights
-- **RESTful API**: Clean, well-documented endpoints
-- **Security**: JWT authentication, role-based permissions, input validation
-
-## 🛠️ Technology Stack
-
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js
-- **Database**: PostgreSQL
-- **ORM**: Prisma
-- **Authentication**: JWT + bcrypt
-- **Validation**: Joi
-- **Security**: Helmet, CORS, Rate Limiting
-
-## 📋 Prerequisites
-
-- Node.js 18+ installed
-- PostgreSQL database
-- npm or yarn package manager
+Backend API for FC 26 Pro Clubs league statistics system with SAPL integration.
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
+### Prerequisites
+
+- Node.js 18.0.0 or higher
+- PostgreSQL database
+- npm or yarn package manager
+
+### Installation
+
 ```bash
+# Clone the repository
+git clone https://github.com/Naeem2111/sapl-stats-backend.git
+cd sapl-stats-backend
+
+# Install dependencies
 npm install
-```
 
-### 2. Environment Configuration
-Copy the environment example file and configure your settings:
-
-```bash
+# Set up environment variables
 cp .env.example .env
-```
+# Edit .env with your configuration
 
-Edit `.env` with your configuration:
-
-```env
-# Database Configuration
-DATABASE_URL="postgresql://username:password@localhost:5432/proclubs_stats"
-
-# Server Configuration
-PORT=3000
-NODE_ENV=development
-
-# JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-here
-JWT_EXPIRES_IN=7d
-
-# Frontend URL for CORS
-FRONTEND_URL=http://localhost:3001
-```
-
-### 3. Database Setup
-```bash
 # Generate Prisma client
 npm run db:generate
 
 # Run database migrations
 npm run db:migrate
 
-# (Optional) Seed with sample data
+# Seed the database (optional)
 npm run db:seed
-```
 
-### 4. Start the Server
-```bash
-# Development mode with auto-reload
+# Start the development server
 npm run dev
-
-# Production mode
-npm start
 ```
 
 The API will be available at `http://localhost:3000`
 
-## 📊 Database Schema
-
-The system uses a relational database with the following main entities:
-
-- **Users**: Account management and authentication
-- **Players**: Individual player profiles and gamertags
-- **Teams**: Team information and management
-- **Seasons**: Competition periods and organization
-- **Matches**: Game results and scheduling
-- **Player Match Stats**: Individual performance per match
-- **Player Season Stats**: Aggregated season performance
-
-## 🔐 Authentication & Authorization
-
-### User Roles
-
-- **COMPETITION_ADMIN**: Full system access, competition management
-- **LEAGUE_ADMIN**: League-wide access, team management
-- **TEAM_ADMIN**: Team-specific operations, player management
-- **PLAYER**: View own stats, limited operations
-
-### JWT Tokens
-
-Include the JWT token in the Authorization header:
-
-```
-Authorization: Bearer <your-jwt-token>
-```
-
-## 📡 API Endpoints
+## 📚 API Documentation
 
 ### Authentication
 
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get current user profile
-- `PUT /api/auth/change-password` - Change password
-
-### Users
-
-- `GET /api/users` - List all users (Competition Admin only)
-- `GET /api/users/:id` - Get user profile
-- `PUT /api/users/:id` - Update user profile
-- `DELETE /api/users/:id` - Delete user (Competition Admin only)
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/logout` - Logout user
+- `GET /api/auth/profile` - Get user profile
 
 ### Teams
 
-- `GET /api/teams` - List all teams
-- `GET /api/teams/:id` - Get team details
-- `POST /api/teams` - Create new team (Team Admin+)
-- `PUT /api/teams/:id` - Update team (Team Admin+)
-- `DELETE /api/teams/:id` - Delete team (Team Admin+)
-- `GET /api/teams/:id/stats` - Get team statistics
+- `GET /api/teams` - Get all teams
+- `GET /api/teams/:id` - Get team by ID
+- `POST /api/teams` - Create new team
+- `PUT /api/teams/:id` - Update team
+- `DELETE /api/teams/:id` - Delete team
 
 ### Players
 
-- `GET /api/players` - List all players
-- `GET /api/players/:id` - Get player profile
-- `PUT /api/players/:id` - Update player (Team Admin+)
-- `POST /api/players/:id/assign-team` - Assign to team (Team Admin+)
-- `DELETE /api/players/:id/remove-team` - Remove from team (Team Admin+)
-- `GET /api/players/:id/stats` - Get player statistics
-
-### Matches
-
-- `GET /api/matches` - List all matches
-- `GET /api/matches/:id` - Get match details
-- `POST /api/matches` - Create new match (Team Admin+)
-- `PUT /api/matches/:id` - Update match (Team Admin+)
-- `POST /api/matches/:id/stats` - Add player stats (Team Admin+)
-- `GET /api/matches/:id/stats-summary` - Get match summary
+- `GET /api/players` - Get all players
+- `GET /api/players/:id` - Get player by ID
+- `POST /api/players` - Create new player
+- `PUT /api/players/:id` - Update player
+- `DELETE /api/players/:id` - Delete player
 
 ### Statistics
 
-- `GET /api/stats/leaderboard` - Get performance leaderboards
-- `GET /api/stats/team-comparison` - Compare team performance
-- `GET /api/stats/season-summary/:id` - Get season statistics
+- `GET /api/stats/leaderboard` - Get statistics leaderboard
+- `GET /api/stats/team-comparison` - Compare team statistics
+- `GET /api/stats/season-summary/:seasonId` - Get season summary
 - `GET /api/stats/position-stats` - Get position-based statistics
+- `GET /api/stats/player-comparison` - Compare player statistics
+
+### Matches
+
+- `GET /api/matches` - Get all matches
+- `GET /api/matches/:id` - Get match by ID
+- `POST /api/matches` - Create new match
+- `PUT /api/matches/:id` - Update match
+- `DELETE /api/matches/:id` - Delete match
 
 ### Seasons
 
-- `GET /api/seasons` - List all seasons
-- `GET /api/seasons/:id` - Get season details
-- `POST /api/seasons` - Create new season (Team Admin+)
-- `PUT /api/seasons/:id` - Update season (Team Admin+)
-- `DELETE /api/seasons/:id` - Delete season (Team Admin+)
-- `GET /api/seasons/current/active` - Get active season
+- `GET /api/seasons` - Get all seasons
+- `GET /api/seasons/:id` - Get season by ID
+- `POST /api/seasons` - Create new season
+- `PUT /api/seasons/:id` - Update season
+- `DELETE /api/seasons/:id` - Delete season
 
-## 🔧 Development
+## 🔧 Environment Variables
 
-### Available Scripts
+Create a `.env` file in the root directory:
+
+```env
+# Database Configuration
+DATABASE_URL="postgresql://username:password@host:port/database"
+
+# JWT Configuration
+JWT_SECRET="your-super-secret-jwt-key-here"
+
+# Server Configuration
+NODE_ENV="development"
+PORT=3000
+
+# CORS Configuration
+CORS_ORIGIN="http://localhost:3001"
+
+# SAPL Integration (if using)
+SAPL_API_KEY="your-sapl-api-key"
+SAPL_BASE_URL="https://api.sapl.com"
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+```
+
+## 🗄️ Database
+
+This project uses PostgreSQL with Prisma ORM.
+
+### Database Commands
 
 ```bash
-npm run dev          # Start development server with nodemon
-npm start            # Start production server
-npm test             # Run tests
-npm run db:generate  # Generate Prisma client
-npm run db:migrate   # Run database migrations
-npm run db:seed      # Seed database with sample data
-npm run db:studio    # Open Prisma Studio
-```
+# Generate Prisma client
+npm run db:generate
 
-### Project Structure
+# Run migrations
+npm run db:migrate
 
-```
-src/
-├── database/
-│   └── prisma.js          # Database connection
-├── middleware/
-│   ├── auth.js            # Authentication middleware
-│   ├── errorHandler.js     # Error handling
-│   └── notFound.js        # 404 handler
-├── routes/
-│   ├── auth.js            # Authentication routes
-│   ├── users.js           # User management
-│   ├── teams.js           # Team management
-│   ├── players.js         # Player management
-│   ├── matches.js         # Match management
-│   ├── stats.js           # Statistics and analytics
-│   └── seasons.js         # Season management
-└── server.js              # Main server file
-```
+# Reset database
+npm run db:reset
 
-### Adding New Routes
+# Open Prisma Studio
+npm run db:studio
 
-1. Create a new route file in `src/routes/`
-2. Import and add to `src/server.js`
-3. Follow the existing pattern for validation and error handling
-
-### Database Changes
-
-1. Update the Prisma schema in `prisma/schema.prisma`
-2. Generate a new migration: `npm run db:migrate`
-3. Update the Prisma client: `npm run db:generate`
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run specific test file
-npm test -- --testPathPattern=users.test.js
+# Push schema changes
+npm run db:push
 ```
 
 ## 🚀 Deployment
 
-### Production Considerations
+### Railway Deployment
 
-1. Set `NODE_ENV=production`
-2. Use a strong `JWT_SECRET`
-3. Configure proper CORS origins
-4. Set up database connection pooling
-5. Use environment variables for sensitive data
-6. Implement proper logging and monitoring
+1. Connect your GitHub repository to Railway
+2. Set environment variables in Railway dashboard
+3. Railway will automatically deploy on push to main branch
 
-### Docker (Optional)
+### Environment Variables for Production
 
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run db:generate
-EXPOSE 3000
-CMD ["npm", "start"]
+```env
+DATABASE_URL="postgresql://..." # Railway provides this
+JWT_SECRET="your-production-secret"
+NODE_ENV="production"
+CORS_ORIGIN="https://your-frontend.vercel.app"
+PORT=3000
 ```
 
-## 📝 API Response Format
+## 🧪 Testing
 
-All API responses follow a consistent format:
+```bash
+# Run tests
+npm test
 
-### Success Response
+# Run tests in watch mode
+npm run test:watch
+```
+
+## 📊 Health Check
+
+The API includes a health check endpoint:
+
+```bash
+curl http://localhost:3000/health
+```
+
+Response:
 
 ```json
 {
-  "success": true,
-  "message": "Operation completed successfully",
-  "data": { ... }
+	"status": "healthy",
+	"timestamp": "2024-01-01T00:00:00.000Z",
+	"uptime": 123.456
 }
 ```
 
-### Error Response
+## 🛡️ Security Features
 
-```json
-{
-  "success": false,
-  "error": {
-    "message": "Error description"
-  },
-  "timestamp": "2024-01-01T00:00:00.000Z"
-}
-```
+- JWT authentication
+- Password hashing with bcrypt
+- CORS protection
+- Rate limiting
+- Input validation with Joi
+- Security headers with Helmet
+- File upload limits
 
-### Paginated Response
+## 📝 Scripts
 
-```json
-{
-  "success": true,
-  "data": [...],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "pages": 5
-  }
-}
-```
+- `npm start` - Start production server
+- `npm run dev` - Start development server with nodemon
+- `npm test` - Run tests
+- `npm run db:generate` - Generate Prisma client
+- `npm run db:migrate` - Run database migrations
+- `npm run db:seed` - Seed database with test data
+- `npm run db:studio` - Open Prisma Studio
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+4. Add tests if applicable
+5. Submit a pull request
 
-## 🆘 Support
+## 📄 License
 
-For questions or issues:
+This project is licensed under the MIT License.
 
-- Create an issue in the repository
-- Check the API documentation
-- Review the error logs
+## 📞 Support
 
-## 🔮 Future Enhancements
-
-- Real-time match updates with WebSockets
-- Advanced analytics and machine learning insights
-- Mobile app API endpoints
-- Integration with external gaming platforms
-- Automated statistics calculation
-- Performance optimization and caching
+For support, please open an issue on GitHub or contact the development team.
